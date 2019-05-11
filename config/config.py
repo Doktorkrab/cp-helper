@@ -1,5 +1,6 @@
 import json
 import marshal
+from typing import List
 
 from . import CONFIG_PATH
 
@@ -8,8 +9,8 @@ class Config(object):
     def __init__(self):
         self.username: str = ''
         self.password: str = ''
-        self.templates = []
-        self.default_template = -1
+        self.templates: List[CodeTemplate] = []
+        self.default_template: int = -1
         self.load()
 
     def __repr__(self):
@@ -30,6 +31,7 @@ class Config(object):
     def load(self):
         try:
             with open(CONFIG_PATH, 'rb') as config_file:
+                # noinspection PyArgumentList
                 dct = json.loads(marshal.load(config_file))
                 self.username = dct['username']
                 self.password = dct['password']
@@ -37,6 +39,19 @@ class Config(object):
                 self.default_template = dct['default_template']
         except FileNotFoundError:
             pass
+
+    def login(self):
+        pass
+
+
+class CodeTemplate(object):
+    def __init__(self, lang: int = -1, path_to: str = '', compile_cmd: str = '', run_cmd: str = '',
+                 clean_cmd: str = ''):
+        self.lang = lang
+        self.path_to = path_to
+        self.compile_cmd = compile_cmd
+        self.run_cmd = run_cmd
+        self.clean_cmd = clean_cmd
 
 
 class ConfigEncoder(json.JSONEncoder):
