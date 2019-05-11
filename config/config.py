@@ -1,8 +1,11 @@
 import json
 import marshal
+import os.path
 from typing import List
 
+from utils import choose_yn
 from . import CONFIG_PATH
+from .langs import lang_list
 
 
 class Config(object):
@@ -17,9 +20,17 @@ class Config(object):
         return f"Config('{self.username}', '{self.password}', {self.templates}, {self.default_template})"
 
     def __str__(self):
-        return f'Codeforces account username: {self.username}\nCodeforces account password(encrypted): ' + \
-               f'{self.password}\nCurrent templates: {self.templates}\n' + \
-               f'Default template: {"None" if self.default_template == -1 else self.templates[self.default_template]}'
+        ret = f'Codeforces account username: {self.username}\nCodeforces account password(encrypted): ' + \
+              f'{self.password}\nCurrent templates: '
+        if len(self.templates) == 0:
+            ret += '[]\n'
+        else:
+            ret += '['
+            for i in range(len(self.templates)):
+                ret += str(self.templates[i])
+                ret += ', ' if i != len(self.templates) - 1 else ']\n'
+        ret += f'Default template: {"None" if self.default_template == -1 else self.templates[self.default_template]}'
+        return ret
 
     def save(self):
         try:
@@ -35,13 +46,89 @@ class Config(object):
                 dct = json.loads(marshal.load(config_file))
                 self.username = dct['username']
                 self.password = dct['password']
-                self.templates = dct['templates']
+                self.templates = []
+                for template in dct['templates']:
+                    self.templates.append(CodeTemplate(**template))
                 self.default_template = dct['default_template']
         except FileNotFoundError:
             pass
 
     def login(self):
         pass
+
+    def add_template(self):
+        id_to_index = {}
+        for index, lang in enumerate(lang_list):
+            print(f'{lang.id}: {lang.name}')
+            id_to_index[lang.id] = index
+
+        chosen_id = -1
+        while chosen_id == -1:
+            chosen = input('Please choose a number(e.g. 54):')
+            if not chosen.isdigit() or int(chosen) not in id_to_index:
+                print('[ERROR!] Please choose a valid number')
+                continue
+            chosen_id = int(chosen)
+
+        path = ''
+        while len(path) == 0:
+            tmp_path = input('Please specify a path to template(e.g. template.cpp, ./template.cpp, ~/template.cpp):')
+            tmp_path = os.path.abspath(os.path.expanduser(tmp_path))
+            if os.path.exists(tmp_path):
+                path = tmp_path
+                break
+            print("[ERROR!] Path doesn't exists")
+
+        compile_cmd = input('Please specify a compile command(may be empty):')
+
+        run_cmd = input('Please specify a run command(e.g. ./%file%)')
+        while len(run_cmd) == 0:
+            print('[ERROR!] Run command cannot be empty')
+            run_cmd = input('Please specify a run command(e.g. ./%file%)')
+
+        clean_cmd = input('Please specify a command after run(e. g. rm %file%)')
+
+        self.templates.append(CodeTemplate(id_to_index[chosen_id], path, compile_cmd, run_cmd, clean_cmd))
+
+        if choose_yn('Set it default now?'):
+            self.set_default_template(len(self.templates) - 1)
+        print('Added!')
+        self.save()
+
+    def delete_template(self):
+        for index, template in enumerate(self.templates):
+            print(f'{index}: {template.path_to}')
+
+        index = input('Please specify the index to delete: ')
+        while not index.isdigit() and 0 <= int(index) < len(self.templates):
+            print('[ERROR!] Please enter valid index')
+            index = input('Please specify the index to delete: ')
+
+        index = int(index)
+        if not choose_yn(f'You want to delete #{index} template. Are you sure?'):
+            return
+        if self.default_template != -1 and self.default_template > index:
+            self.default_template -= 1
+        if self.default_template == index:
+            self.default_template = -1
+
+        self.templates.pop(index)
+        print('Deleted!')
+        self.save()
+
+    def set_default_template(self, index: int = -1):
+        if index == -1:
+            for index, template in enumerate(self.templates):
+                print(f'{index}: {template.path_to}')
+
+            index = input('Please specify the index of new default template: ')
+            while not index.isdigit() and 0 <= int(index) < len(self.templates):
+                print('[ERROR!] Please enter valid index')
+                index = input('Please specify the index of new default template: ')
+            index = int(index)
+
+        self.default_template = index
+        self.save()
 
 
 class CodeTemplate(object):
@@ -53,10 +140,15 @@ class CodeTemplate(object):
         self.run_cmd = run_cmd
         self.clean_cmd = clean_cmd
 
+    def __str__(self):
+        return self.path_to
+
 
 class ConfigEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, Config):
+            return o.__dict__
+        elif isinstance(o, CodeTemplate):
             return o.__dict__
         else:
             return super().default(o)

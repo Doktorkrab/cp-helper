@@ -7,6 +7,7 @@ Usage:
   cf-helper.py (-h|--help)
   cf-helper.py config user (add|modify)
   cf-helper.py config template (add|delete|default)
+  cf-helper.py config print
 
 Options:
   -v --version  Show version.
