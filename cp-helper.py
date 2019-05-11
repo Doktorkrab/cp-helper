@@ -1,28 +1,25 @@
-#! /usr/bin/env python3
-import sys
+# ! /usr/bin/env python3
+"""
+cp-helper - Competitive programming tool.
+
+Usage:
+  cf-helper.py
+  cf-helper.py (-v|--version)
+  cf-helper.py (-h|--help)
+
+Options:
+  -v --version  Show version.
+  -h --help     Show this screen.
+"""
 import typing
 
-help_text = '''Competitive programming helper, version: 0.0.1'''
+from docopt import docopt
 
 
-def parse_args(args: typing.List[str]) -> None:
-    print(sys.argv)
-    if len(args) < 2 or args[1] == 'help':
-        print(help_text)
-    elif args[1] == 'config':
-        pass
-    elif args[1] == 'submit':
-        pass
-    elif args[1] == 'race':
-        pass
-    elif args[1] == 'prepare':
-        pass
-    elif args[1] == 'parse':
-        pass
-    elif args[1] == 'test':
-        pass
-    else:
-        print(help_text)
+def parse_args(args: typing.Dict[str, bool]) -> None:
+    pass
 
 
-parse_args(sys.argv)
+if __name__ == '__main__':
+    arguments = docopt(__doc__, version="Developer pre-alpha-0.0.1")
+    parse_args(arguments)
