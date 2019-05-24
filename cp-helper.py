@@ -3,11 +3,12 @@
 cp-helper - Competitive programming tool.
 
 Usage:
-  cf-helper.py (-v|--version)
-  cf-helper.py (-h|--help)
-  cf-helper.py config user
-  cf-helper.py config template (add|delete|default)
-  cf-helper.py config print
+  cp-helper.py (-v|--version)
+  cp-helper.py (-h|--help)
+  cp-helper.py config user
+  cp-helper.py config template (add|delete|default)
+  cp-helper.py config print
+  cp-helper.py config cf_api <key> <secret>
 
 Options:
   -v --version  Show version.

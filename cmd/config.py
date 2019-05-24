@@ -11,6 +11,8 @@ def parse_config(args: Dict[str, bool]) -> None:
     if args['print']:
         cfg = config.Config()
         print(cfg)
+    if args['cf_api']:
+        cf_api(args)
 
 
 def user_config(args: Dict[str, bool]) -> None:
@@ -26,3 +28,10 @@ def template_config(args: Dict[str, bool]) -> None:
         cfg.delete_template()
     if args['default']:
         cfg.set_default_template()
+
+
+def cf_api(args: Dict[str, bool]) -> None:
+    cfg = config.Config()
+    cfg.key = args['<key>']
+    cfg.secret = args['<secret>']
+    cfg.save()
