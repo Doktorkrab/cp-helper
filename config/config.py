@@ -1,6 +1,5 @@
-import json
-import marshal
 import os.path
+import pickle
 from typing import List
 
 from utils import choose_yn
@@ -35,21 +34,21 @@ class Config(object):
     def save(self):
         try:
             with open(CONFIG_PATH, 'wb') as config_file:
-                marshal.dump(json.dumps(self, cls=ConfigEncoder), config_file)
+                pickle.dump(self.username, config_file)
+                pickle.dump(self.password, config_file)
+                pickle.dump(self.templates, config_file)
+                pickle.dump(self.default_template, config_file)
+
         except Exception as e:
             print("[ERROR!] Didn't saved! Exception:", e)
 
     def load(self):
         try:
             with open(CONFIG_PATH, 'rb') as config_file:
-                # noinspection PyArgumentList
-                dct = json.loads(marshal.load(config_file))
-                self.username = dct['username']
-                self.password = dct['password']
-                self.templates = []
-                for template in dct['templates']:
-                    self.templates.append(CodeTemplate(**template))
-                self.default_template = dct['default_template']
+                self.username = pickle.load(config_file)
+                self.password = pickle.load(config_file)
+                self.templates = pickle.load(config_file)
+                self.default_template = pickle.load(config_file)
         except FileNotFoundError:
             pass
 
@@ -142,13 +141,3 @@ class CodeTemplate(object):
 
     def __str__(self):
         return self.path_to
-
-
-class ConfigEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, Config):
-            return o.__dict__
-        elif isinstance(o, CodeTemplate):
-            return o.__dict__
-        else:
-            return super().default(o)
