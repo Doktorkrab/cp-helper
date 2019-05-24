@@ -61,4 +61,8 @@ def login(username: str, password: str):
         raise Exception
 
     print('Login succeed!')
+    client.username = 'doktorkrab'
+    client.ftaa = ftaa
+    client.bfaa = bfaa
+    client.cookies = session.cookies
     client.save()

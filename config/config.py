@@ -1,7 +1,9 @@
 import os.path
 import pickle
+from getpass import getpass
 from typing import List
 
+import client
 from utils import choose_yn
 from . import CONFIG_PATH
 from .langs import lang_list
@@ -51,9 +53,6 @@ class Config(object):
                 self.default_template = pickle.load(config_file)
         except FileNotFoundError:
             pass
-
-    def login(self):
-        pass
 
     def add_template(self):
         id_to_index = {}
@@ -127,6 +126,15 @@ class Config(object):
             index = int(index)
 
         self.default_template = index
+        self.save()
+
+    def modify_user(self):
+        username = input('Enter username:')
+        password = getpass('Enter password:')
+        # TODO: make encryption
+        client.login(username, password)
+        self.username = username
+        self.password = password
         self.save()
 
 

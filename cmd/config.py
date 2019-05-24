@@ -14,7 +14,8 @@ def parse_config(args: Dict[str, bool]) -> None:
 
 
 def user_config(args: Dict[str, bool]) -> None:
-    pass
+    cfg = config.Config()
+    cfg.modify_user()
 
 
 def template_config(args: Dict[str, bool]) -> None:
