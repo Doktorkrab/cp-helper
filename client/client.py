@@ -1,5 +1,7 @@
 import pickle
 
+from requests import Session
+
 from config import SESSION_PATH
 
 
@@ -27,3 +29,9 @@ class Client(object):
                 self.cookies = pickle.load(session_file)
         except FileNotFoundError:
             pass
+
+    def get_session(self) -> Session:
+        s = Session()
+        if self.cookies is not None:
+            s.cookies = self.cookies
+        return s
