@@ -13,6 +13,8 @@ def parse_config(args: Dict[str, bool]) -> None:
         print(cfg)
     if args['cf_api']:
         cf_api(args)
+    if args['lang']:
+        lang(args)
 
 
 def user_config(args: Dict[str, bool]) -> None:
@@ -34,4 +36,14 @@ def cf_api(args: Dict[str, bool]) -> None:
     cfg = config.Config()
     cfg.key = args['<key>']
     cfg.secret = args['<secret>']
+    cfg.save()
+
+
+def lang(args: Dict[str, bool]) -> None:
+    cfg = config.Config()
+    print(f'Now locale is {cfg.lang}')
+    now = ''
+    while now != 'ru' and now != 'en':
+        now = input('Enter locale(en or ru):')
+    cfg.lang = now
     cfg.save()

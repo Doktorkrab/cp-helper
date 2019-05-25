@@ -17,6 +17,7 @@ class Config(object):
         self.default_template: int = -1
         self.secret = ''
         self.key = ''
+        self.lang = 'ru'
         self.load()
 
     def __repr__(self):
@@ -44,6 +45,7 @@ class Config(object):
                 pickle.dump(self.default_template, config_file)
                 pickle.dump(self.secret, config_file)
                 pickle.dump(self.key, config_file)
+                pickle.dump(self.lang, config_file)
 
         except Exception as e:
             print("[ERROR!] Didn't saved! Exception:", e)
@@ -57,6 +59,7 @@ class Config(object):
                 self.default_template = pickle.load(config_file)
                 self.secret = pickle.load(config_file)
                 self.key = pickle.load(config_file)
+                self.lang = pickle.load(config_file)
         except FileNotFoundError:
             pass
 

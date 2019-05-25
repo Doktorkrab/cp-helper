@@ -9,6 +9,7 @@ Usage:
   cp-helper.py config template (add|delete|default)
   cp-helper.py config print
   cp-helper.py config cf_api <key> <secret>
+  cp-helper.py config lang
 
 Options:
   -v --version  Show version.
