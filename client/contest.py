@@ -1,7 +1,10 @@
 import re
+from os import makedirs
 
 from config import Config
+from utils import choose_yn
 from .client import Client
+from .login import check_login
 
 
 class Problem(object):
@@ -30,14 +33,39 @@ class Contest(object):
         print(f'Found {len(self.problems)} problems')
         for problem in self.problems:
             problem.parse()
-            print(f'Parsed {problem.id} with {len(problem.samples_in)}')
+            print(f'Parsed {problem.id} with {len(problem.samples_in)} samples')
+
+    def create_directories(self):
+        folder_name = self.id
+        if self.group:
+            folder_name += f'_{self.group}'
+
+        for problem in self.problems:
+            try:
+                makedirs(f'{folder_name}/{problem.id}')
+            except FileExistsError:
+                if not choose_yn(f'Directory for {self.id}{f"(from group {self.group})" if self.group else ""}'
+                                 + f"'s problem {problem.id} already exists. Rewrite?"):
+                    continue
+            for num, inp in enumerate(problem.samples_in):
+                with open(f'{folder_name}/{problem.id}/{num + 1}', 'w') as sample:
+                    print(inp, file=sample)
+            for num, out in enumerate(problem.samples_out):
+                with open(f'{folder_name}/{problem.id}/{num + 1}.a', 'w') as sample:
+                    print(out, file=sample)
 
 
 def find_problems_block(contest: Contest):
     session = Client().get_session()
-    url = f"https://codeforces.com{'/group/' + contest.group if contest.group else ''}/contest/{contest.id}"
+    cfg = Config()
 
+    url = f"https://codeforces.com{'/group/' + contest.group if contest.group else ''}/contest/{contest.id}"
     resp = session.get(url)
+
+    if not check_login(resp.text, cfg.username):
+        cfg.login()
+        session = Client().get_session()
+        resp = session.get(url)
     tmp = re.findall(r'class="problems">([\S\s]*?)</table>', resp.text)
 
     if len(tmp) == 0:
@@ -57,7 +85,6 @@ def find_problems(problems_block: str):
 def parse_problem(problem: Problem):
     url = 'https://codeforces.com' + problem.url + '?locale=ru'
     session = Client().get_session()
-    cfg = Config()
     resp = session.get(url)
     text = resp.text.replace('<br />', '\n')
     input_samples = re.findall(r'class="input">[\S\s]+?<pre>([\s\S]+?)</pre>', text)
