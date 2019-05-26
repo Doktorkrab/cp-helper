@@ -6,7 +6,7 @@ from typing import List
 import client
 from utils import choose_yn
 from . import CONFIG_PATH
-from .langs import lang_list
+from .langs import lang_list, Lang
 
 
 class Config(object):
@@ -15,9 +15,9 @@ class Config(object):
         self.password: str = ''
         self.templates: List[CodeTemplate] = []
         self.default_template: int = -1
-        self.secret = ''
-        self.key = ''
-        self.lang = 'ru'
+        self.secret: str = ''
+        self.key: str = ''
+        self.lang: str = 'ru'
         self.load()
 
     def __repr__(self):
@@ -79,7 +79,8 @@ class Config(object):
 
         path = ''
         while len(path) == 0:
-            tmp_path = input('Please specify a path to template(e.g. template.cpp, ./template.cpp, ~/template.cpp):')
+            tmp_path = input(
+                'Please specify a path to template(e.g. template.cpp, ./template.cpp, ~/template.cpp, empty):')
             tmp_path = os.path.abspath(os.path.expanduser(tmp_path))
             if os.path.exists(tmp_path):
                 path = tmp_path
@@ -95,7 +96,7 @@ class Config(object):
 
         clean_cmd = input('Please specify a command after run(e. g. rm %file%)')
 
-        self.templates.append(CodeTemplate(id_to_index[chosen_id], path, compile_cmd, run_cmd, clean_cmd))
+        self.templates.append(CodeTemplate(lang_list[id_to_index[chosen_id]], path, compile_cmd, run_cmd, clean_cmd))
 
         if choose_yn('Set it default now?'):
             self.set_default_template(len(self.templates) - 1)
@@ -150,9 +151,8 @@ class Config(object):
         client.login(self.username, self.password)
 
 
-
 class CodeTemplate(object):
-    def __init__(self, lang: int = -1, path_to: str = '', compile_cmd: str = '', run_cmd: str = '',
+    def __init__(self, lang: Lang = Lang(), path_to: str = '', compile_cmd: str = '', run_cmd: str = '',
                  clean_cmd: str = ''):
         self.lang = lang
         self.path_to = path_to
