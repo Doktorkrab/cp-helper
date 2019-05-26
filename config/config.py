@@ -141,10 +141,14 @@ class Config(object):
         username = input('Enter username:')
         password = getpass('Enter password:')
         # TODO: make encryption
-        client.login(username, password)
         self.username = username
         self.password = password
         self.save()
+        self.login()
+
+    def login(self):
+        client.login(self.username, self.password)
+
 
 
 class CodeTemplate(object):
