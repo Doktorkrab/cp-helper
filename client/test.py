@@ -94,6 +94,7 @@ def run_test(code_file: str) -> None:
     compile_process = Popen(compile_command, stdout=DEVNULL, stderr=PIPE, shell=True)
     try:
         _, stderr = compile_process.communicate(timeout=10)
+        stderr = stderr.decode()
     except TimeoutError:
         print('[ERROR!] Timeout while compilation!')
         print('Aborting.')
@@ -114,7 +115,9 @@ def run_test(code_file: str) -> None:
         run_process = Popen(run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, shell=True)
         start = time()
         try:
-            stdout, stderr = run_process.communicate(input=inp, timeout=5)
+            stdout, stderr = run_process.communicate(input=inp.encode(), timeout=5)
+            stdout = stdout.decode()
+            stderr = stderr.decode()
         except TimeoutError:
             print(f'TL #{num}!')
             return
@@ -122,7 +125,7 @@ def run_test(code_file: str) -> None:
             if run_process.poll() != 0:
                 print(f'RE #{num}!')
             if out.strip().rstrip() == stdout.strip().rstrip():
-                print(f'Ok #{num}. ... Time: {time() - start} secs.')
+                print(f'Ok #{num}. ... Time: {format(time() - start, ".3f")} secs.')
             else:
                 print(f'WA #{num}')
                 print('---Input---')
@@ -130,17 +133,18 @@ def run_test(code_file: str) -> None:
                 print('---Output---')
                 print(stdout)
                 print('---Right Answer---')
-                print(ndiff(stdout.splitlines(True), out.splitlines(True)))
+                print(''.join(ndiff(stdout.splitlines(True), out.splitlines(True))))
 
-        clear_command = prepare_command(template.clean_cmd, code_file)
-        clear_process = Popen(clear_command, stdin=DEVNULL, stdout=DEVNULL, stderr=PIPE, shell=True)
-        try:
-            _, stderr = clear_process.communicate(timeout=5)
-        except TimeoutError:
-            print('[ERROR!] Timeout on clear command')
-            return
-        else:
-            if clear_process.poll() != 0:
-                print('[ERROR!] Runtime on clear command!')
-                print('---STDERR---')
-                print(stderr)
+    clear_command = prepare_command(template.clean_cmd, code_file)
+    clear_process = Popen(clear_command, stdin=DEVNULL, stdout=DEVNULL, stderr=PIPE, shell=True)
+    try:
+        _, stderr = clear_process.communicate(timeout=5)
+        stderr.decode()
+    except TimeoutError:
+        print('[ERROR!] Timeout on clear command')
+        return
+    else:
+        if clear_process.poll() != 0:
+            print('[ERROR!] Runtime on clear command!')
+            print('---STDERR---')
+            print(stderr.decode())

@@ -11,6 +11,7 @@ Usage:
   cp-helper.py config cf_api <key> <secret>
   cp-helper.py config lang
   cp-helper.py fetch <contest_id> [<group_id>]
+  cp-helper.py test <filename>
 
 Options:
   -v --version  Show version.
