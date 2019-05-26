@@ -2,7 +2,7 @@ import re
 from os import makedirs
 
 from config import Config
-from utils import choose_yn
+from utils import choose_yn, pretty_test_num
 from .client import Client
 from .login import check_login
 
@@ -48,10 +48,12 @@ class Contest(object):
                                  + f"'s problem {problem.id} already exists. Rewrite?"):
                     continue
             for num, inp in enumerate(problem.samples_in):
-                with open(f'{folder_name}/{problem.id}/{num + 1}', 'w') as sample:
+                pretty_num = pretty_test_num(num + 1, len(problem.samples_in) - 1)
+                with open(f'{folder_name}/{problem.id}/{pretty_num}', 'w') as sample:
                     print(inp, file=sample)
             for num, out in enumerate(problem.samples_out):
-                with open(f'{folder_name}/{problem.id}/{num + 1}.a', 'w') as sample:
+                pretty_num = pretty_test_num(num + 1, len(problem.samples_out) - 1)
+                with open(f'{folder_name}/{problem.id}/{pretty_num}.a', 'w') as sample:
                     print(out, file=sample)
 
 

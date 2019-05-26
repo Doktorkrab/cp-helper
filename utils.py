@@ -6,3 +6,7 @@ def choose_yn(text: str, default: bool = True) -> bool:
         print('[y/N]: ', end='')
     ret = input()
     return ret in 'yY'
+
+
+def pretty_test_num(number: int, max_number: int) -> str:
+    return '0' * (len(str(max_number)) - len(str(number))) + str(number)
