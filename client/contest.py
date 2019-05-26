@@ -22,9 +22,9 @@ class Problem(object):
 
 
 class Contest(object):
-    def __init__(self, contest_id: str, group: str = ''):
+    def __init__(self, contest_id: str, group):
         self.id = contest_id
-        self.group = group
+        self.group = group if group else ''
         self.problems = []
 
     def parse(self):

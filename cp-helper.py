@@ -10,6 +10,7 @@ Usage:
   cp-helper.py config print
   cp-helper.py config cf_api <key> <secret>
   cp-helper.py config lang
+  cp-helper.py fetch <contest_id> [<group_id>]
 
 Options:
   -v --version  Show version.

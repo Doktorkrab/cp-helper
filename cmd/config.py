@@ -3,7 +3,7 @@ from typing import Dict
 import config
 
 
-def parse_config(args: Dict[str, bool]) -> None:
+def parse_config(args: Dict[str, str]) -> None:
     if args['user']:
         user_config(args)
     if args['template']:
@@ -17,12 +17,12 @@ def parse_config(args: Dict[str, bool]) -> None:
         lang(args)
 
 
-def user_config(args: Dict[str, bool]) -> None:
+def user_config(args: Dict[str, str]) -> None:
     cfg = config.Config()
     cfg.modify_user()
 
 
-def template_config(args: Dict[str, bool]) -> None:
+def template_config(args: Dict[str, str]) -> None:
     cfg = config.Config()
     if args['add']:
         cfg.add_template()
@@ -32,14 +32,14 @@ def template_config(args: Dict[str, bool]) -> None:
         cfg.set_default_template()
 
 
-def cf_api(args: Dict[str, bool]) -> None:
+def cf_api(args: Dict[str, str]) -> None:
     cfg = config.Config()
     cfg.key = args['<key>']
     cfg.secret = args['<secret>']
     cfg.save()
 
 
-def lang(args: Dict[str, bool]) -> None:
+def lang(args: Dict[str, str]) -> None:
     cfg = config.Config()
     print(f'Now locale is {cfg.lang}')
     now = ''
