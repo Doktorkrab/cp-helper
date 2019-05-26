@@ -108,7 +108,7 @@ class Config(object):
             print(f'{index}: {template.path_to}')
 
         index = input('Please specify the index to delete: ')
-        while not index.isdigit() and 0 <= int(index) < len(self.templates):
+        while not (index.isdigit() and 0 <= int(index) < len(self.templates)):
             print('[ERROR!] Please enter valid index')
             index = input('Please specify the index to delete: ')
 

@@ -46,7 +46,7 @@ def find_template(file: str) -> Optional[CodeTemplate]:
             print(f'#{num}: {template}')
 
         chosen = ''
-        while not chosen.isdigit() and 0 <= int(chosen) < len(cfg.templates):
+        while not (chosen.isdigit() and 0 <= int(chosen) < len(cfg.templates)):
             chosen = input('Enter a number:')
         return cfg.templates[int(chosen)]
     elif len(suitable_templates) == 1:
@@ -57,7 +57,7 @@ def find_template(file: str) -> Optional[CodeTemplate]:
             print(f"#{ind}: {template}")
 
         chosen = ''
-        while not chosen.isdigit() and 0 <= int(chosen) < len(cfg.templates):
+        while not (chosen.isdigit() and 0 <= int(chosen) < len(cfg.templates)):
             chosen = input('Enter a number:')
         return cfg.templates[int(chosen)]
 
@@ -80,6 +80,9 @@ def get_samples() -> Tuple[List[int], List[int]]:
 
 
 def run_test(code_file: str) -> None:
+    if code_file is None:
+        return
+
     code_file = abspath(code_file)
     in_samples, out_samples = get_samples()
     template = find_template(code_file)
