@@ -1,5 +1,5 @@
 import re
-from os import makedirs
+from os import makedirs, chdir
 
 from config import Config
 from utils import choose_yn, pretty_test_num
@@ -19,6 +19,16 @@ class Problem(object):
         if len(self.samples_in) != len(self.samples_out):
             print('Error occurred while problem was parsing')
             self.samples_in, self.samples_out = [], []
+
+    def save(self):
+        for num, inp in enumerate(self.samples_in):
+            pretty_num = pretty_test_num(num + 1, len(self.samples_in) - 1)
+            with open(f'{pretty_num}', 'w') as sample:
+                print(inp, file=sample)
+        for num, out in enumerate(self.samples_out):
+            pretty_num = pretty_test_num(num + 1, len(self.samples_out) - 1)
+            with open(f'{pretty_num}.a', 'w') as sample:
+                print(out, file=sample)
 
 
 class Contest(object):
@@ -47,14 +57,9 @@ class Contest(object):
                 if not choose_yn(f'Directory for {self.id}{f"(from group {self.group})" if self.group else ""}'
                                  + f"'s problem {problem.id} already exists. Rewrite?"):
                     continue
-            for num, inp in enumerate(problem.samples_in):
-                pretty_num = pretty_test_num(num + 1, len(problem.samples_in) - 1)
-                with open(f'{folder_name}/{problem.id}/{pretty_num}', 'w') as sample:
-                    print(inp, file=sample)
-            for num, out in enumerate(problem.samples_out):
-                pretty_num = pretty_test_num(num + 1, len(problem.samples_out) - 1)
-                with open(f'{folder_name}/{problem.id}/{pretty_num}.a', 'w') as sample:
-                    print(out, file=sample)
+            chdir(f'{folder_name}/{problem.id}')
+            problem.save()
+            chdir('../..')
 
 
 def find_problems_block(contest: Contest):
