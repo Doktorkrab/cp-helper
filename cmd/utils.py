@@ -9,18 +9,18 @@ def get_contest_id(args: dict) -> Optional[str]:
     if args['<contest-id>']:
         contest_id = args['<contest-id>']
     else:
-        contest_id = basename(abspath('../../')).split('_')[0]
+        contest_id = basename(abspath('../')).split('_')[0]
     if not contest_id.isdigit():
         print("[ERROR!] Contest id not a number or can't find valid contest id")
         return None
     return contest_id
 
 
-def get_problem_id(args: dict) -> Optional[str]:
+def get_problem_id(args: dict) -> str:
     if args['<problem-id>']:
         problem_id = args['<problem-id>']
     else:
-        problem_id = basename(abspath('../'))
+        problem_id = basename(abspath('./'))
     return problem_id
 
 
@@ -40,7 +40,7 @@ def find_code(args: dict) -> Optional[Tuple[str, CodeTemplate]]:
     suitable_pairs = []
     cfg = Config()
     if not len(cfg.templates):
-        print('Please add template with ./cp-hepler config template add')
+        print('Please add template with ./cp-helper config template add')
         return None
     if args['<filename>']:
         _, ext = splitext(args['<filename>'])

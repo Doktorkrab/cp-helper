@@ -61,12 +61,15 @@ class Contest(object):
             problem.save()
             chdir('../..')
 
+    def get_url(self):
+        return f"https://codeforces.com{'/group/' + self.group if self.group else ''}/contest/{self.id}"
+
 
 def find_problems_block(contest: Contest):
     session = Client().get_session()
     cfg = Config()
 
-    url = f"https://codeforces.com{'/group/' + contest.group if contest.group else ''}/contest/{contest.id}"
+    url = contest.get_url()
     resp = session.get(url)
 
     if not check_login(resp.text, cfg.username):
