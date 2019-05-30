@@ -1,5 +1,5 @@
 from client.contest import Contest
-from client.submit import submit
+from client.submission import submit
 from .utils import get_contest_id, get_group_id, get_problem_id, find_code
 
 
