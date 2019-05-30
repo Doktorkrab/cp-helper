@@ -24,11 +24,11 @@ class Problem(object):
         for num, inp in enumerate(self.samples_in):
             pretty_num = pretty_test_num(num + 1, len(self.samples_in) - 1)
             with open(f'{pretty_num}', 'w') as sample:
-                print(inp, file=sample)
+                print(inp.strip().rstrip(), file=sample)
         for num, out in enumerate(self.samples_out):
             pretty_num = pretty_test_num(num + 1, len(self.samples_out) - 1)
             with open(f'{pretty_num}.a', 'w') as sample:
-                print(out, file=sample)
+                print(out.strip().rstrip(), file=sample)
 
 
 class Contest(object):
