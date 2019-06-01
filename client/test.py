@@ -5,6 +5,7 @@ from subprocess import Popen, PIPE, DEVNULL
 from time import time
 from typing import List, Tuple
 
+from utils import color
 from config.config import CodeTemplate
 
 
@@ -49,23 +50,22 @@ def run_test(code_file: str, template: CodeTemplate) -> None:
     in_samples, out_samples = get_samples()
     n = find_samples_number(in_samples, out_samples)
     if n == 0:
-        print("[ERROR!] Can't find any samples! Aborted.")
+        print(color("Can't find any samples! Aborted.", fg='red', bright_fg=True))
         return
 
     compile_command = prepare_command(template.compile_cmd, code_file)
+    print(color(compile_command, fg='blue', bright_fg=True))
     compile_process = Popen(compile_command, stdout=DEVNULL, stderr=PIPE, shell=True)
     try:
         _, stderr = compile_process.communicate(timeout=10)
         stderr = stderr.decode()
     except TimeoutError:
-        print('[ERROR!] Timeout while compilation!')
+        print(color('Timeout while compilation!', fg='red', bright_fg=True))
         print('Aborting.')
         return
     else:
         if compile_process.poll() != 0:  # return code != 0
-            print('[ERROR!] Compilation runtime error!')
-            print('STDERR:')
-            print(stderr)
+            print(color('Compilation runtime error!\n' + 'STDERR:\n' + stderr, fg='red', bright_fg=True))
             return
     for num in range(1, n + 1):
         with open(f'{num}') as sample:
@@ -81,15 +81,15 @@ def run_test(code_file: str, template: CodeTemplate) -> None:
             stdout = stdout.decode()
             stderr = stderr.decode()
         except TimeoutError:
-            print(f'TL #{num}!')
+            print(color(f'TL #{num}!', fg='cyan', bright_fg=True))
             return
         else:
             if run_process.poll() != 0:
-                print(f'RE #{num}!')
+                print(color('RE #{num}!', fg='red', bright_fg=True))
             if out.strip().rstrip() == stdout.strip().rstrip():
-                print(f'Ok #{num}. ... Time: {format(time() - start, ".3f")} secs.')
+                print(color(f'Ok #{num}.', fg='green', bright_fg=True) + f'... Time: {format(time() - start, ".3f")} secs.')
             else:
-                print(f'WA #{num}')
+                print(color(f'WA #{num}', fg='red', bright_fg=True))
                 print('---Input---')
                 print(inp)
                 print('---Output---')
@@ -103,10 +103,9 @@ def run_test(code_file: str, template: CodeTemplate) -> None:
         _, stderr = clear_process.communicate(timeout=5)
         stderr.decode()
     except TimeoutError:
-        print('[ERROR!] Timeout on clear command')
+        print(color('Timeout on clear command', fg='red', bright_fg=True))
         return
     else:
         if clear_process.poll() != 0:
-            print('[ERROR!] Runtime on clear command!')
-            print('---STDERR---')
-            print(stderr.decode())
+            print(color('Runtime on clear command\n' + 'STDERR:\n' + stderr.decode(), fg='red', bright_fg=True))
+

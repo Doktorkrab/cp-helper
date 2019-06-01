@@ -4,13 +4,13 @@ from re import findall
 from subprocess import call
 from time import sleep, time
 from typing import List
-
 import bs4
 
 from config.config import CodeTemplate, Config
 from .client import Client
 from .contest import Contest
 from .login import get_csrf_token, check_login
+from utils import color
 
 VERDICTS = {"RUNTIME_ERROR": "RE",
             "WRONG_ANSWER": "WA",
@@ -43,7 +43,7 @@ class Submisson(object):
 
         tmp = tag.find('td', {'class': 'status-cell'})
         self.status: str = 'WAITING' if tmp is None or tmp.span is None else tmp.span['submissionverdict']
-        if tmp.span is None and not tmp['waiting']:
+        if tmp.span is None and tmp['waiting'] == 'false':
             self.status = 'UNKNOWN'
         self.test: int = -1 if tmp is None or \
                                tmp.find('span', {'class': 'verdict-format-judged'}) is None else \
@@ -71,7 +71,7 @@ def find_error(body: str) -> str:
 
 def submit(contest: Contest, problem_id: str, source_code: str, template: CodeTemplate) -> None:
     if contest is None or problem_id is None:
-        print("[ERROR!] Can't find contest by this id or can't find problem by this problem id")
+        print(color("Can't find contest by this id or can't find problem by this problem id", fg='red', bright_fg=True))
         return
 
     client = Client()
@@ -89,7 +89,7 @@ def submit(contest: Contest, problem_id: str, source_code: str, template: CodeTe
     with open(source_code) as f:
         code = f.read()
 
-    print(f"Submiting in contest {contest.id} problem {problem_id}.")
+    print(color(f"Submiting in contest {contest.id} problem {problem_id}.", fg='blue', bright_fg=True))
     resp = session.post(submit_url, data={
         "csrf_token": csrf,
         "ftaa": client.ftaa,
@@ -104,9 +104,9 @@ def submit(contest: Contest, problem_id: str, source_code: str, template: CodeTe
     })
 
     if resp.url == my_url:
-        print('Submitted successfully!')
+        print(color('Submitted successfully!', fg='green', bright_fg=True))
     else:
-        print(f'[ERROR!]{find_error(resp.text)}')
+        print(color(f'{find_error(resp.text)}', fg='red', bright_fg=True))
     watch_submission(contest)
 
 

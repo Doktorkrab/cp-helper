@@ -4,7 +4,7 @@ from getpass import getpass
 from typing import List
 
 import client
-from utils import choose_yn
+from utils import choose_yn, color
 from . import CONFIG_PATH
 from .langs import lang_list, Lang
 
@@ -48,7 +48,7 @@ class Config(object):
                 pickle.dump(self.lang, config_file)
 
         except Exception as e:
-            print("[ERROR!] Didn't saved! Exception:", e)
+            print(color("Didn't saved! Exception: " + str(e), fg='Red', bright_fg=True))
 
     def load(self):
         try:
@@ -73,7 +73,7 @@ class Config(object):
         while chosen_id == -1:
             chosen = input('Please choose a number(e.g. 54):')
             if not chosen.isdigit() or int(chosen) not in id_to_index:
-                print('[ERROR!] Please choose a valid number')
+                print(color('Please choose a valid number', fg='Red', bright_fg=True))
                 continue
             chosen_id = int(chosen)
 
@@ -85,22 +85,22 @@ class Config(object):
             if os.path.exists(tmp_path):
                 path = tmp_path
                 break
-            print("[ERROR!] Path doesn't exists")
+            print(color("Path doesn't exists", fg='Red', bright_fg=True))
 
         compile_cmd = input('Please specify a compile command(may be empty):')
 
         run_cmd = input('Please specify a run command(e.g. ./%file%)')
         while len(run_cmd) == 0:
-            print('[ERROR!] Run command cannot be empty')
+            print(color('Run command cannot be empty', fg='Red', bright_fg=True))
             run_cmd = input('Please specify a run command(e.g. ./%file%)')
 
         clean_cmd = input('Please specify a command after run(e. g. rm %file%)')
 
         self.templates.append(CodeTemplate(lang_list[id_to_index[chosen_id]], path, compile_cmd, run_cmd, clean_cmd))
 
-        if choose_yn('Set it default now?'):
+        if choose_yn(color('Set it default now?', fg='blue', bright_fg=True)):
             self.set_default_template(len(self.templates) - 1)
-        print('Added!')
+        print(color('Added!', fg='green', bright_fg=True))
         self.save()
 
     def delete_template(self):
@@ -109,11 +109,12 @@ class Config(object):
 
         index = input('Please specify the index to delete: ')
         while not (index.isdigit() and 0 <= int(index) < len(self.templates)):
-            print('[ERROR!] Please enter valid index')
+            print(color('Please enter valid index', fg='Red', bright_fg=True))
             index = input('Please specify the index to delete: ')
 
         index = int(index)
-        if not choose_yn(f'You want to delete #{index} template. Are you sure?'):
+        if not choose_yn(color(f'You want to delete #{index} template. Are you sure?', fg='magenta', bright_fg=True,
+                               bold=True, underline=True)):
             return
         if self.default_template != -1 and self.default_template > index:
             self.default_template -= 1
@@ -121,7 +122,7 @@ class Config(object):
             self.default_template = -1
 
         self.templates.pop(index)
-        print('Deleted!')
+        print(color('Deleted!', fg='green', bright_fg=True))
         self.save()
 
     def set_default_template(self, index: int = -1):
@@ -131,7 +132,7 @@ class Config(object):
 
             index = input('Please specify the index of new default template: ')
             while not index.isdigit() and 0 <= int(index) < len(self.templates):
-                print('[ERROR!] Please enter valid index')
+                print(color('Please enter valid index', fg='Red', bright_fg=True))
                 index = input('Please specify the index of new default template: ')
             index = int(index)
 
@@ -141,7 +142,6 @@ class Config(object):
     def modify_user(self):
         username = input('Enter username:')
         password = getpass('Enter password:')
-        # TODO: make encryption
         self.username = username
         self.password = password
         self.save()

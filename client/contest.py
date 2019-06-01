@@ -2,7 +2,7 @@ import re
 from os import makedirs, chdir
 
 from config import Config
-from utils import choose_yn, pretty_test_num
+from utils import choose_yn, pretty_test_num, color
 from .client import Client
 from .login import check_login
 
@@ -17,7 +17,7 @@ class Problem(object):
     def parse(self):
         self.samples_in, self.samples_out = parse_problem(self)
         if len(self.samples_in) != len(self.samples_out):
-            print('Error occurred while problem was parsing')
+            print(color('Error occurred while problem was parsing', fg='Red', bright_fg=True))
             self.samples_in, self.samples_out = [], []
 
     def save(self):
@@ -40,10 +40,10 @@ class Contest(object):
     def parse(self):
         block = find_problems_block(self)
         self.problems = find_problems(block)
-        print(f'Found {len(self.problems)} problems')
+        print(color(f'Found {len(self.problems)} problems', fg='blue', bright_fg=True))
         for problem in self.problems:
             problem.parse()
-            print(f'Parsed {problem.id} with {len(problem.samples_in)} samples')
+            print(color(f'Parsed {problem.id} with {len(problem.samples_in)} samples', fg='green', bright_fg=True))
 
     def create_directories(self):
         folder_name = self.id
@@ -79,10 +79,10 @@ def find_problems_block(contest: Contest):
     tmp = re.findall(r'class="problems">([\S\s]*?)</table>', resp.text)
 
     if len(tmp) == 0:
-        print("Can't found any problems!")
+        print(color("Can't found any problems!", fg='red', bright_fg=True))
         return
     if len(tmp) != 1:
-        print('Multiple problems block!')
+        print(color('Multiple problems block!', fg='red', bright_fg=True))
         return
     return tmp[0]
 

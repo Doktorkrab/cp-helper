@@ -2,6 +2,7 @@ from client.test import run_test
 from .config import parse_config
 from .contest import parse_fetch, parse_submit
 from .utils import find_code
+from utils import color
 
 
 def parse_args(args: dict) -> None:
@@ -12,7 +13,7 @@ def parse_args(args: dict) -> None:
     if args['test']:
         ret = find_code(args)
         if ret is None:
-            print("Can't find any file.")
+            print(color("Can't find any file.", fg='Red', bright_fg=True))
             return
         run_test(ret[0], ret[1])
     if args['submit']:

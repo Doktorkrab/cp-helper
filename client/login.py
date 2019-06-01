@@ -1,7 +1,7 @@
 import re
 
 from .client import Client
-
+from utils import color
 
 def regexp_wrapper(regexp: str, body: str) -> str:
     found = re.findall(regexp, body)
@@ -60,7 +60,7 @@ def login(username: str, password: str):
         # TODO: Make it better
         raise Exception
 
-    print('Login succeed!')
+    print(color('Login succeed!', fg='green', bright_fg=True))
     client.username = username
     client.ftaa = ftaa
     client.bfaa = bfaa
