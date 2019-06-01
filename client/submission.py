@@ -20,7 +20,9 @@ VERDICTS = {"RUNTIME_ERROR": "RE",
             "OK": "OK",
             "COMPILATION_ERROR": "CE",
             "TESTING": "Testing",
-            "WAITING": "Waiting"}
+            "WAITING": "Waiting",
+            "UNKNOWN": "Unknown",
+            "PARTIAL": "Relative Scoring"}
 
 
 class Submisson(object):
@@ -30,11 +32,19 @@ class Submisson(object):
         parameters = tag.find_all('td', {'class': 'status-small'})
         self.date: datetime = datetime.strptime(parameters[0].text.strip().rstrip(), '%d.%m.%Y %H:%M')
         self.problem: str = parameters[1].text.strip().rstrip()
-        self.time: str = tag.find('td', {'class': 'time-consumed-cell'}).text.strip().rstrip()
-        self.memory: str = tag.find('td', {'class': 'time-consumed-cell'}).text.strip().rstrip()
+        if tag is not None and tag.find('td', {'class': 'time-consumed-cell'}) is not None:
+            self.time: str = tag.find('td', {'class': 'time-consumed-cell'}).text.strip().rstrip()
+        else:
+            self.time: str = ''
+        if tag is not None and tag.find('td', {'class': 'memory-consumed-cell'}) is not None:
+            self.memory: str = tag.find('td', {'class': 'memory-consumed-cell'}).text.strip().rstrip()
+        else:
+            self.memory: str = ''
 
         tmp = tag.find('td', {'class': 'status-cell'})
         self.status: str = 'WAITING' if tmp is None or tmp.span is None else tmp.span['submissionverdict']
+        if tmp.span is None and not tmp['waiting']:
+            self.status = 'UNKNOWN'
         self.test: int = -1 if tmp is None or \
                                tmp.find('span', {'class': 'verdict-format-judged'}) is None else \
             int(tmp.find('span', {'class': 'verdict-format-judged'}).text)
@@ -46,9 +56,9 @@ class Submisson(object):
         ret += f'Date: {self.date.strftime("%d.%m.%Y %H:%M")}\n'
         ret += f'Problem: {self.problem}\n'
         ret += f'Status: {VERDICTS[self.status]}' + ('\n' if self.test == -1 else f' #{self.test}\n')
-        ret += f'Time: {self.time}\n'
-        ret += f'Memory: {self.memory}'
-        return ret
+        ret += f'Time: {self.time}\n' if self.time else ''
+        ret += f'Memory: {self.memory}' if self.time else ''
+        return ret.rstrip()
 
 
 def find_error(body: str) -> str:
@@ -129,10 +139,10 @@ def watch_submission(contest: Contest):
     flag = False
     while sub is None or sub.status == 'WAITING' or sub.status == 'TESTING':
         start = time()
-        sub = get_submissions(contest)[0]
         if flag:
-            for i in range(7):
+            for i in range(len(str(sub).splitlines())):
                 print(u'\u001b[A\u001b[2K', end='')
+        sub = get_submissions(contest)[0]
         flag = True
         print(sub)
         diff = time() - start

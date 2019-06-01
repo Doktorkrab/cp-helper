@@ -3,11 +3,9 @@ from os import listdir
 from os.path import isfile, splitext, abspath, basename
 from subprocess import Popen, PIPE, DEVNULL
 from time import time
-from typing import List, Tuple, Optional
+from typing import List, Tuple
 
-from config import Config
 from config.config import CodeTemplate
-from utils import choose_yn
 
 
 def find_samples_number(in_samples: List[int], out_samples: List[int]) -> int:
@@ -24,42 +22,6 @@ def prepare_command(command: str, code_file: str) -> str:
     name = basename(name)
 
     return command.replace('$%file%$', name).replace('$%ext%$', extension).replace('$%path%$', full_path)
-
-
-def find_template(file: str) -> Optional[CodeTemplate]:
-    cfg = Config()
-    _, extension = splitext(file)
-    extension = extension[1:]  # remove .
-
-    suitable_templates = []
-    for ind, template in enumerate(cfg.templates):
-        if template.lang.suffix == extension:
-            suitable_templates.append((ind, template))
-
-    if len(suitable_templates) == 0:
-        print("[ERROR!] Can't find any suitable template!")
-        print("Please add new template for this file extension.")
-        print('Or can choose from existing templates')
-        if not choose_yn('Choose from existing?'):
-            return None
-        for num, template in enumerate(cfg.templates):
-            print(f'#{num}: {template}')
-
-        chosen = ''
-        while not (chosen.isdigit() and 0 <= int(chosen) < len(cfg.templates)):
-            chosen = input('Enter a number:')
-        return cfg.templates[int(chosen)]
-    elif len(suitable_templates) == 1:
-        return suitable_templates[0][1]
-    else:
-        print('There are some suitable templates.')
-        for ind, template in suitable_templates:
-            print(f"#{ind}: {template}")
-
-        chosen = ''
-        while not (chosen.isdigit() and 0 <= int(chosen) < len(cfg.templates)):
-            chosen = input('Enter a number:')
-        return cfg.templates[int(chosen)]
 
 
 def get_samples() -> Tuple[List[int], List[int]]:
@@ -79,15 +41,12 @@ def get_samples() -> Tuple[List[int], List[int]]:
     return in_samples, out_samples
 
 
-def run_test(code_file: str) -> None:
+def run_test(code_file: str, template: CodeTemplate) -> None:
     if code_file is None:
         return
 
     code_file = abspath(code_file)
     in_samples, out_samples = get_samples()
-    template = find_template(code_file)
-    if template is None:
-        return
     n = find_samples_number(in_samples, out_samples)
     if n == 0:
         print("[ERROR!] Can't find any samples! Aborted.")

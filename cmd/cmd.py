@@ -14,6 +14,6 @@ def parse_args(args: dict) -> None:
         if ret is None:
             print("Can't find any file.")
             return
-        run_test(ret[0])
+        run_test(ret[0], ret[1])
     if args['submit']:
         parse_submit(args)

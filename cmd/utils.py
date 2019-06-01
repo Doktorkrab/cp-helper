@@ -28,7 +28,7 @@ def get_group_id(args: dict) -> Optional[str]:
     if args['<group-id>']:
         group_id = args['<group-id>']
     else:
-        group_id = basename(abspath('../../')).split('_')
+        group_id = basename(abspath('../')).split('_')
         if len(group_id) < 2:
             group_id = ''
         else:
