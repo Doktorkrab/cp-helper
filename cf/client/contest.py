@@ -1,7 +1,7 @@
 import re
 from os import makedirs, chdir
 
-from config import Config
+from cf.config import Config
 from utils import choose_yn, pretty_test_num, color
 from .client import Client
 from .login import check_login

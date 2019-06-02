@@ -1,4 +1,4 @@
-import config
+from cf import config
 
 
 def parse_config(args: dict) -> None:

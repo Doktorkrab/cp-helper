@@ -3,7 +3,7 @@ import pickle
 from getpass import getpass
 from typing import List
 
-import client
+from cf import client
 from utils import choose_yn, color
 from . import CONFIG_PATH
 from .langs import lang_list, Lang

@@ -1,4 +1,4 @@
-from client.test import run_test
+from cf.client.test import run_test
 from utils import color
 from .config import parse_config
 from .contest import parse_fetch, parse_submit, parse_open

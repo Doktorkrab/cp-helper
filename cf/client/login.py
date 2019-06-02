@@ -1,7 +1,8 @@
 import re
 
-from .client import Client
 from utils import color
+from .client import Client
+
 
 def regexp_wrapper(regexp: str, body: str) -> str:
     found = re.findall(regexp, body)

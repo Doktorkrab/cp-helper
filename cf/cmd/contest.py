@@ -1,7 +1,7 @@
 from webbrowser import open_new_tab
 
-from client.contest import Contest
-from client.submission import submit
+from cf.client.contest import Contest
+from cf.client.submission import submit
 from utils import color
 from .utils import get_contest_id, get_group_id, get_problem_id, find_code
 

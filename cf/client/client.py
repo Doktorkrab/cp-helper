@@ -2,7 +2,7 @@ import pickle
 
 from requests import Session
 
-from config import SESSION_PATH
+from cf.config import SESSION_PATH
 
 
 class Client(object):

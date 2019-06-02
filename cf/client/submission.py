@@ -4,13 +4,14 @@ from re import findall
 from subprocess import call
 from time import sleep, time
 from typing import List
+
 import bs4
 
-from config.config import CodeTemplate, Config
+from cf.config.config import CodeTemplate, Config
+from utils import color
 from .client import Client
 from .contest import Contest
 from .login import get_csrf_token, check_login
-from utils import color
 
 VERDICTS = {"RUNTIME_ERROR": "RE",
             "WRONG_ANSWER": "WA",

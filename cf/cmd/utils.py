@@ -2,7 +2,7 @@ from os import listdir
 from os.path import abspath, basename, splitext, isfile
 from typing import Optional, Tuple
 
-from config.config import CodeTemplate, Config
+from cf.config.config import CodeTemplate, Config
 from utils import color
 
 
