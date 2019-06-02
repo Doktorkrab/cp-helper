@@ -1,7 +1,7 @@
 import re
 
-from utils import color
-from .client import Client
+from cp_helper.utils import color
+from .core import Client
 
 
 def regexp_wrapper(regexp: str, body: str) -> str:

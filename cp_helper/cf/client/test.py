@@ -5,8 +5,8 @@ from subprocess import Popen, PIPE, DEVNULL
 from time import time
 from typing import List, Tuple
 
-from cf.config.config import CodeTemplate
-from utils import color
+from cp_helper.cf.config.core import CodeTemplate
+from cp_helper.utils import color
 
 
 def find_samples_number(in_samples: List[int], out_samples: List[int]) -> int:

@@ -2,8 +2,8 @@ from os import listdir
 from os.path import abspath, basename, splitext, isfile
 from typing import Optional, Tuple
 
-from cf.config.config import CodeTemplate, Config
-from utils import color
+from cp_helper.cf.config.core import CodeTemplate, Config
+from cp_helper.utils import color
 
 
 def get_contest_id(args: dict) -> Optional[str]:

@@ -7,10 +7,10 @@ from typing import List
 
 import bs4
 
-from cf.config.config import CodeTemplate, Config
-from utils import color
-from .client import Client
+from cp_helper.cf.config.core import CodeTemplate, Config
+from cp_helper.utils import color
 from .contest import Contest
+from .core import Client
 from .login import get_csrf_token, check_login
 
 VERDICTS = {"RUNTIME_ERROR": "RE",

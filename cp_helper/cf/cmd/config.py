@@ -1,4 +1,4 @@
-from cf import config
+from cp_helper.cf import config
 
 
 def parse_config(args: dict) -> None:

@@ -1,5 +1,5 @@
-from cf.client.test import run_test
-from utils import color
+from cp_helper.cf.client.test import run_test
+from cp_helper.utils import color
 from .config import parse_config
 from .contest import parse_fetch, parse_submit, parse_open
 from .utils import find_code

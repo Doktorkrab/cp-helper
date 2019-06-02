@@ -1,9 +1,9 @@
 import re
 from os import makedirs, chdir
 
-from cf.config import Config
-from utils import choose_yn, pretty_test_num, color
-from .client import Client
+from cp_helper.cf.config import Config
+from cp_helper.utils import choose_yn, pretty_test_num, color
+from .core import Client
 from .login import check_login
 
 

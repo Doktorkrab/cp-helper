@@ -3,10 +3,10 @@ import pickle
 from getpass import getpass
 from typing import List
 
-from cf import client
-from utils import choose_yn, color
-from . import CONFIG_PATH
-from .langs import lang_list, Lang
+from cp_helper.cf import client
+from cp_helper.cf.config import CONFIG_PATH
+from cp_helper.cf.config.langs import lang_list, Lang
+from cp_helper.utils import choose_yn, color
 
 
 class Config(object):

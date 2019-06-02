@@ -4,7 +4,7 @@ home = expanduser("~")
 CONFIG_PATH = home + '/.cpConfig'
 SESSION_PATH = home + '/.cpSession'
 
-from .config import Config
+from .core import Config
 from .langs import lang_list
 
-__all__ = ['config', 'langs', Config]
+__all__ = ['core', 'langs', Config]

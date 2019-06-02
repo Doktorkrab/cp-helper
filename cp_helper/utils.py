@@ -1,6 +1,3 @@
-from typing import List
-
-
 def choose_yn(text: str, default: bool = True) -> bool:
     print(text, end='')
     if default:

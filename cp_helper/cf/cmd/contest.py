@@ -1,8 +1,8 @@
 from webbrowser import open_new_tab
 
-from cf.client.contest import Contest
-from cf.client.submission import submit
-from utils import color
+from cp_helper.cf.client.contest import Contest
+from cp_helper.cf.client.submission import submit
+from cp_helper.utils import color
 from .utils import get_contest_id, get_group_id, get_problem_id, find_code
 
 

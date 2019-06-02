@@ -2,7 +2,7 @@ import pickle
 
 from requests import Session
 
-from cf.config import SESSION_PATH
+from cp_helper.cf.config import SESSION_PATH
 
 
 class Client(object):

@@ -37,9 +37,14 @@ Examples:
 """
 from docopt import docopt
 
-from cf import cmd
+from cp_helper.cf import cmd
 
-if __name__ == '__main__':
+
+def parse():
     arguments = docopt(__doc__, version="Alpha 1(codeforces edition)")
     if arguments['cf']:
         cmd.parse_args(arguments)
+
+
+if __name__ == "__main__":
+    parse()
