@@ -4,15 +4,13 @@ import config
 def parse_config(args: dict) -> None:
     if args['user']:
         user_config(args)
-    if args['template']:
+    elif args['template']:
         template_config(args)
-    if args['print']:
+    elif args['lang']:
+        lang(args)
+    else:
         cfg = config.Config()
         print(cfg)
-    if args['cf_api']:
-        cf_api(args)
-    if args['lang']:
-        lang(args)
 
 
 def user_config(args: dict) -> None:
@@ -28,13 +26,6 @@ def template_config(args: dict) -> None:
         cfg.delete_template()
     if args['default']:
         cfg.set_default_template()
-
-
-def cf_api(args: dict) -> None:
-    cfg = config.Config()
-    cfg.key = args['<key>']
-    cfg.secret = args['<secret>']
-    cfg.save()
 
 
 def lang(args: dict) -> None:

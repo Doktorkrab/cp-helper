@@ -15,8 +15,6 @@ class Config(object):
         self.password: str = ''
         self.templates: List[CodeTemplate] = []
         self.default_template: int = -1
-        self.secret: str = ''
-        self.key: str = ''
         self.lang: str = 'ru'
         self.load()
 
@@ -43,8 +41,6 @@ class Config(object):
                 pickle.dump(self.password, config_file)
                 pickle.dump(self.templates, config_file)
                 pickle.dump(self.default_template, config_file)
-                pickle.dump(self.secret, config_file)
-                pickle.dump(self.key, config_file)
                 pickle.dump(self.lang, config_file)
 
         except Exception as e:
@@ -57,8 +53,6 @@ class Config(object):
                 self.password = pickle.load(config_file)
                 self.templates = pickle.load(config_file)
                 self.default_template = pickle.load(config_file)
-                self.secret = pickle.load(config_file)
-                self.key = pickle.load(config_file)
                 self.lang = pickle.load(config_file)
         except FileNotFoundError:
             pass
