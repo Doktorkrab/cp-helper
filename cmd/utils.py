@@ -5,6 +5,7 @@ from typing import Optional, Tuple
 from config.config import CodeTemplate, Config
 from utils import color
 
+
 def get_contest_id(args: dict) -> Optional[str]:
     if args['<contest-id>']:
         contest_id = args['<contest-id>']
@@ -21,7 +22,7 @@ def get_problem_id(args: dict) -> str:
         problem_id = args['<problem-id>']
     else:
         problem_id = basename(abspath('./'))
-    return problem_id
+    return problem_id.upper()
 
 
 def get_group_id(args: dict) -> Optional[str]:

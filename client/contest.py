@@ -10,7 +10,8 @@ from .login import check_login
 class Problem(object):
     def __init__(self, problem_id: str = '', url: str = ''):
         self.id = problem_id
-        self.url = url
+        cfg = Config()
+        self.url = 'https://codeforces.com' + url + f'?locale={cfg.lang}'
         self.samples_in = []
         self.samples_out = []
 
@@ -35,11 +36,10 @@ class Contest(object):
     def __init__(self, contest_id: str, group):
         self.id = contest_id
         self.group = group if group else ''
-        self.problems = []
-
-    def parse(self):
         block = find_problems_block(self)
         self.problems = find_problems(block)
+
+    def parse(self):
         print(color(f'Found {len(self.problems)} problems', fg='blue', bright_fg=True))
         for problem in self.problems:
             problem.parse()
@@ -93,9 +93,11 @@ def find_problems(problems_block: str):
 
 
 def parse_problem(problem: Problem):
-    url = 'https://codeforces.com' + problem.url + '?locale=ru'
     session = Client().get_session()
-    resp = session.get(url)
+    resp = session.get(problem.url)
+    if resp.url != problem.url:
+        print(color("No problem statements with chosen language.", fg='red', bright_fg=True))
+        return [], []
     text = resp.text.replace('<br />', '\n')
     input_samples = re.findall(r'class="input">[\S\s]+?<pre>([\s\S]+?)</pre>', text)
     output_samples = re.findall(r'class="output">[\S\s]+?<pre>([\s\S]+?)</pre>', text)

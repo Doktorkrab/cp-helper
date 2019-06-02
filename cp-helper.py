@@ -13,6 +13,7 @@ Usage:
   cp-helper.py fetch [(g <group-id>)] [<contest-id>] [<problem-id>]
   cp-helper.py test [<filename>]
   cp-helper.py submit [([(g <group-id>)] <contest-id> <problem-id>)] [<filename>]
+  cp-helper.py open [(g <group-id>)] [<contest-id>] [<problem-id>]
 
 Options:
   -v --version  Show version.

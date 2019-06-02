@@ -1,8 +1,8 @@
 from client.test import run_test
-from .config import parse_config
-from .contest import parse_fetch, parse_submit
-from .utils import find_code
 from utils import color
+from .config import parse_config
+from .contest import parse_fetch, parse_submit, parse_open
+from .utils import find_code
 
 
 def parse_args(args: dict) -> None:
@@ -18,3 +18,5 @@ def parse_args(args: dict) -> None:
         run_test(ret[0], ret[1])
     if args['submit']:
         parse_submit(args)
+    if args['open']:
+        parse_open(args)
