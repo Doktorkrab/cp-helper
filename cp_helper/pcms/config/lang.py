@@ -10,6 +10,9 @@ class Lang(object):
         self.id = id
         self.suffix = suffix
 
+    def __str__(self):
+        return f'{self.name}({self.suffix})'
+
 
 _default_lang_list = [Lang("MinGW GCC C++14 7.2.0", ".cpp", "cpp14.gnu"),
                       Lang("Java 8.0 u144", ".java", "java8"),
@@ -33,8 +36,5 @@ def find_languages(body: str) -> List[Lang]:
         return []
 
     language_select_block = language_select_block[0]
-    print(*[f'Lang("{y}", "{z}", "{x}")' for x, y, z in
-            findall(r'''<option value=['"]([\S]+?)['"]>([\s\S]+?) \(\*([\S\s]+?)\)''',
-                    language_select_block)], sep=',\n')
     return [Lang(y, z, x) for x, y, z in findall(r'''<option value=['"]([\S]+?)['"]>([\s\S]+?) \(\*([\S\s]+?)\)''',
                                                  language_select_block)]
