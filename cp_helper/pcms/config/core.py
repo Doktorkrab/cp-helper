@@ -22,6 +22,24 @@ class Config(object):
         self.langs: List[Lang] = _default_lang_list
         self.load()
 
+    def __str__(self):
+        ret = ''
+        ret += f'url: {self.url}\n'
+        ret += f'username: {self.username}\n'
+        ret += f'templates:\n'
+        max_len = len(str(len(self.templates)))
+
+        for i in range(len(self.templates)):
+            need_spaces = max_len - len(str(i + 1))
+            ret += f"{' ' * need_spaces}#{i + 1}|{self.templates[i].path_to}\n"
+            ret += f"{' ' * max_len} |{self.templates[i].compile_command}\n"
+            ret += f"{' ' * max_len} |{self.templates[i].run_command}\n"
+            ret += f"{' ' * max_len} |{self.templates[i].clean_command}\n"
+            ret += f"{' ' * max_len} |{', '.join([str(x) for x in self.templates[i].compilers])}\n"
+        ret += f'Path to config:{self.path}\n'
+        ret += f'Langs: {", ".join([str(x) for x in self.langs])}'
+        return ret
+
     def load(self) -> None:
         """
         Load Config from file.
