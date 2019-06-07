@@ -95,13 +95,40 @@ class Config(object):
 
         self.templates.append(to_add)
 
+        if choose_yn('Set it default?'):
+            self.default_template = len(self.templates) - 1
+
     def delete_template(self):
-        pass
+        max_len = len(str(len(self.templates)))
+
+        for i in range(len(self.templates)):
+            need_spaces = max_len - len(str(i + 1))
+            print(f"{' ' * need_spaces}#{i + 1}|{self.templates[i].path_to}")
+            print(f"{' ' * max_len} |{self.templates[i].compile_command}")
+            print(f"{' ' * max_len} |{self.templates[i].run_command}")
+            print(f"{' ' * max_len} |{self.templates[i].clean_command}")
+            print(f"{' ' * max_len} |{', '.join([str(x) for x in self.templates[i].compilers])}")
+
+        chosen = input('Please enter a index:')
+        while not chosen.isdigit() or not (0 < int(chosen) <= len(self.templates)):
+            chosen = input('Please enter a correct index:')
+
+        if not choose_yn('Are you sure?'):
+            return
+
+        if int(chosen) - 1 < self.default_template:
+            self.default_template -= 1
+        elif int(chosen) - 1 == self.default_template:
+            self.default_template = -1
+
+        self.templates.pop(int(chosen) - 1)
 
 
 class CodeTemplate(object):
     def __init__(self, path_to: str = '', compile_command: str = '', run_command: str = '', clean_command: str = '',
-                 compilers: List[Lang] = []):
+                 compilers=None):
+        if compilers is None:
+            compilers = []
         self.path_to: str = path_to
         self.compile_command: str = compile_command
         self.run_command: str = run_command
