@@ -14,6 +14,9 @@ Usage:
   cp-helper cf submit [([(g <group-id>)] <contest-id> <problem-id>)] [<filename>]
   cp-helper cf open [(g <group-id>)] [<contest-id>] [<problem-id>]
   cp-helper pcms config print [<config-name>]
+  cp-helper pcms config new <config-name>
+  cp-helper pcms config <config-name> template add
+  cp-helper pcms config <config-name> template delete
 
 Options:
   -v --version  Show version.

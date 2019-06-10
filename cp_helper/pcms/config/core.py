@@ -31,13 +31,14 @@ class Config(object):
 
         for i in range(len(self.templates)):
             need_spaces = max_len - len(str(i + 1))
-            ret += f"{' ' * need_spaces}#{i + 1}|{self.templates[i].path_to}\n"
-            ret += f"{' ' * max_len} |{self.templates[i].compile_command}\n"
-            ret += f"{' ' * max_len} |{self.templates[i].run_command}\n"
-            ret += f"{' ' * max_len} |{self.templates[i].clean_command}\n"
-            ret += f"{' ' * max_len} |{', '.join([str(x) for x in self.templates[i].compilers])}\n"
+            ret += f"\t  {' ' * need_spaces}#{i + 1}|{self.templates[i].path_to}\n"
+            ret += f"\t  {' ' * max_len} |{self.templates[i].compile_command}\n"
+            ret += f"\t  {' ' * max_len} |{self.templates[i].run_command}\n"
+            ret += f"\t  {' ' * max_len} |{self.templates[i].clean_command}\n"
+            ret += f"\t  {' ' * max_len} |{', '.join([str(x) for x in self.templates[i].compilers])}\n"
         ret += f'Path to config:{self.path}\n'
-        ret += f'Langs: {", ".join([str(x) for x in self.langs])}'
+        sep = ',\n'
+        ret += f'Langs: {sep.join([str(x) for x in self.langs])}'
         return ret
 
     def load(self) -> None:
@@ -116,6 +117,8 @@ class Config(object):
         if choose_yn('Set it default?'):
             self.default_template = len(self.templates) - 1
 
+        self.save()
+
     def delete_template(self):
         max_len = len(str(len(self.templates)))
 
@@ -140,6 +143,18 @@ class Config(object):
             self.default_template = -1
 
         self.templates.pop(int(chosen) - 1)
+
+        self.save()
+
+    def login(self, username: str = '', password: str = ''):
+        if username:
+            self.username = username
+        if password:
+            self.password = password
+
+        # TODO: add login
+
+        self.save()
 
 
 class CodeTemplate(object):
