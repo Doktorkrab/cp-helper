@@ -3,6 +3,8 @@ from os import makedirs, listdir
 from os.path import expanduser, isfile
 from shutil import get_terminal_size
 
+from requests import get
+
 from cp_helper.pcms.config.core import Config
 from cp_helper.utils import color, choose_yn
 
@@ -41,7 +43,11 @@ def new_config(args: dict) -> None:
 
     cfg = Config(path)
     cfg.url = input('URL:')
-    # TODO: Add url check
+    resp = get(cfg.url)
+    while (resp.status_code != 200 and resp.status_code != 302) or not resp.url.endswith('login.xhtml'):
+        cfg.url = input('Enter a right pcms url:')
+        resp = get(cfg.url)
+
     username = input('Username:')
     password = getpass('Password:')
 
