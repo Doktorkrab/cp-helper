@@ -172,8 +172,3 @@ class CodeTemplate(object):
         self.run_command: str = run_command
         self.clean_command: str = clean_command
         self.compilers: List[Lang] = compilers  # compilers for various contests
-
-
-if __name__ == '__main__':
-    gg = Config('~/keke')
-    gg.add_template()

@@ -23,7 +23,8 @@ class Client(object):
         except FileNotFoundError:
             pass
 
-    def get_session(self) -> Session:
+    @property
+    def session(self) -> Session:
         s = Session()
         if self.cookies is not None:
             s.cookies = self.cookies

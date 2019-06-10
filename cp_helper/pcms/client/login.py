@@ -11,7 +11,7 @@ def check_login(body: str) -> bool:
 
 def login(username: str, password: str, path: str, url: str) -> None:
     cl = Client(path)
-    session = cl.get_session()
+    session = cl.session
 
     login_url = url + 'login.xhtml'
     resp = session.get(login_url)
