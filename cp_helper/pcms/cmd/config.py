@@ -1,5 +1,5 @@
 from getpass import getpass
-from os import makedirs, listdir
+from os import listdir, makedirs
 from os.path import expanduser, isfile
 from shutil import get_terminal_size
 
@@ -44,10 +44,13 @@ def new_config(args: dict) -> None:
     cfg = Config(path)
     cfg.url = input('URL:')
     resp = get(cfg.url)
+    cfg.url = resp.url
     while (resp.status_code != 200 and resp.status_code != 302) or not resp.url.endswith('login.xhtml'):
         cfg.url = input('Enter a right pcms url:')
         resp = get(cfg.url)
+        cfg.url = resp.url
 
+    cfg.url = cfg.url.replace('login.xhtml', '')
     username = input('Username:')
     password = getpass('Password:')
 

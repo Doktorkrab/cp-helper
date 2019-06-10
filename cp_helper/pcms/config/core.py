@@ -1,9 +1,13 @@
-from os.path import isfile, expanduser, abspath
+from os import makedirs
+from os.path import isfile, expanduser, abspath, basename
 from pickle import dump, load
 from typing import List
 
+from cp_helper.pcms.client.login import login
 from cp_helper.pcms.config.lang import Lang, _default_lang_list
 from cp_helper.utils import choose_yn
+
+SESSION_PATH = expanduser('~/.cpSessionPcms/')
 
 
 class Config(object):
@@ -31,11 +35,11 @@ class Config(object):
 
         for i in range(len(self.templates)):
             need_spaces = max_len - len(str(i + 1))
-            ret += f"\t  {' ' * need_spaces}#{i + 1}|{self.templates[i].path_to}\n"
-            ret += f"\t  {' ' * max_len} |{self.templates[i].compile_command}\n"
-            ret += f"\t  {' ' * max_len} |{self.templates[i].run_command}\n"
-            ret += f"\t  {' ' * max_len} |{self.templates[i].clean_command}\n"
-            ret += f"\t  {' ' * max_len} |{', '.join([str(x) for x in self.templates[i].compilers])}\n"
+            ret += f"{' ' * need_spaces}#{i + 1}|{self.templates[i].path_to}\n"
+            ret += f"{' ' * max_len} |{self.templates[i].compile_command}\n"
+            ret += f"{' ' * max_len} |{self.templates[i].run_command}\n"
+            ret += f"{' ' * max_len} |{self.templates[i].clean_command}\n"
+            ret += f"{' ' * max_len} |{', '.join([str(x) for x in self.templates[i].compilers])}\n"
         ret += f'Path to config:{self.path}\n'
         sep = ',\n'
         ret += f'Langs: {sep.join([str(x) for x in self.langs])}'
@@ -152,7 +156,8 @@ class Config(object):
         if password:
             self.password = password
 
-        # TODO: add login
+        makedirs(SESSION_PATH, exist_ok=True)
+        login(self.username, self.password, SESSION_PATH + basename(self.path), self.url)
 
         self.save()
 
