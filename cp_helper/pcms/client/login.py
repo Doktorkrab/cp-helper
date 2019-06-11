@@ -9,8 +9,8 @@ def check_login(body: str) -> bool:
     return soup.find('td', text='Login name') is not None
 
 
-def login(username: str, password: str, path: str, url: str) -> None:
-    cl = Client(path)
+def login(username: str, password: str, name: str, url: str) -> None:
+    cl = Client(name)
     session = cl.session
 
     login_url = url + 'login.xhtml'

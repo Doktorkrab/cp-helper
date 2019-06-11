@@ -1,13 +1,12 @@
 from os import makedirs
-from os.path import isfile, expanduser, abspath, basename
+from os.path import isfile, expanduser, abspath
 from pickle import dump, load
 from typing import List
 
 from cp_helper.pcms.client.login import login
+from cp_helper.pcms.config import CONFIG_PATH
 from cp_helper.pcms.config.lang import Lang, _default_lang_list
 from cp_helper.utils import choose_yn
-
-SESSION_PATH = expanduser('~/.cpSessionPcms/')
 
 
 class Config(object):
@@ -16,13 +15,13 @@ class Config(object):
     There are two types of config: main config(~/.cpConfigPcms/*) and config from current contest folder
     """
 
-    def __init__(self, path: str):
+    def __init__(self, name: str):
         self.url: str = ''
         self.username: str = ''
         self.password: str = ''
         self.templates: List[CodeTemplate] = []
         self.default_template: int = -1
-        self.path: str = expanduser(path)
+        self.name: str = name
         self.langs: List[Lang] = _default_lang_list
         self.load()
 
@@ -40,7 +39,7 @@ class Config(object):
             ret += f"{' ' * max_len} |{self.templates[i].run_command}\n"
             ret += f"{' ' * max_len} |{self.templates[i].clean_command}\n"
             ret += f"{' ' * max_len} |{', '.join([str(x) for x in self.templates[i].compilers])}\n"
-        ret += f'Path to config:{self.path}\n'
+        ret += f'Path to config:{CONFIG_PATH}/{self.name}/config\n'
         sep = ',\n'
         ret += f'Langs: {sep.join([str(x) for x in self.langs])}'
         return ret
@@ -51,7 +50,7 @@ class Config(object):
         :rtype: None
         """
         try:
-            with open(self.path, 'rb') as f:
+            with open(f'{CONFIG_PATH}/{self.name}/config', 'rb') as f:
                 self.url = load(f)
                 self.username = load(f)
                 self.password = load(f)
@@ -67,7 +66,8 @@ class Config(object):
         :return: None
         :rtype None
         """
-        with open(self.path, 'wb') as f:
+        makedirs(f'{CONFIG_PATH}/{self.name}', exist_ok=True)
+        with open(f'{CONFIG_PATH}/{self.name}/config', 'wb') as f:
             dump(self.url, f)
             dump(self.username, f)
             dump(self.password, f)
@@ -156,8 +156,7 @@ class Config(object):
         if password:
             self.password = password
 
-        makedirs(SESSION_PATH, exist_ok=True)
-        login(self.username, self.password, SESSION_PATH + basename(self.path), self.url)
+        login(self.username, self.password, self.name, self.url)
 
         self.save()
 

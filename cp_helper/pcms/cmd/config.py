@@ -1,14 +1,13 @@
 from getpass import getpass
 from os import listdir, makedirs
-from os.path import expanduser, isfile
+from os.path import isfile, isdir
 from shutil import get_terminal_size
 
 from requests import get
 
+from cp_helper.pcms.config import CONFIG_PATH
 from cp_helper.pcms.config.core import Config
 from cp_helper.utils import color, choose_yn
-
-CONFIG_PATH = expanduser('~/.cpConfigPcms/')
 
 
 def parse_config(args: dict) -> None:
@@ -25,7 +24,9 @@ def parse_config(args: dict) -> None:
             configs = listdir(CONFIG_PATH)
             cnt = 0
             for config in configs:
-                cfg = Config(CONFIG_PATH + config)
+                if not isdir(f'{CONFIG_PATH}/{config}') or 'config' not in listdir(f'{CONFIG_PATH}/{config}'):
+                    continue
+                cfg = Config(config)
                 if cnt:
                     print('-' * get_terminal_size().columns)
                 cnt += 1
@@ -37,11 +38,11 @@ def parse_config(args: dict) -> None:
 
 
 def new_config(args: dict) -> None:
-    path = CONFIG_PATH + args['<config-name>']
-    if isfile(path) and not choose_yn(f'Config {args["<config-name>"]} existed. Rewrite?'):
+    path = f'{CONFIG_PATH}/{args["<config-name>"]}'
+    if isdir(path) and not choose_yn(f'Config {args["<config-name>"]} existed. Rewrite?'):
         return
 
-    cfg = Config(path)
+    cfg = Config(args['<config-name>'])
     cfg.url = input('URL:')
     resp = get(cfg.url)
     cfg.url = resp.url
@@ -58,12 +59,12 @@ def new_config(args: dict) -> None:
 
 
 def template_parse(args: dict) -> None:
-    path = CONFIG_PATH + args['<config-name>']
-    if not isfile(path):
+    path = f'{CONFIG_PATH}/{args["<config-name>"]}'
+    if not isdir(path):
         print(color('Config not found.', fg='red', bright_fg=True))
         return
 
-    cfg = Config(path)
+    cfg = Config(args['<config-name>'])
     if args['add']:
         cfg.add_template()
     if args['delete']:
