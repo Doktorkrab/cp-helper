@@ -17,6 +17,7 @@ Usage:
   cp-helper pcms config new <config-name>
   cp-helper pcms config <config-name> template add
   cp-helper pcms config <config-name> template delete
+  cp-helper pcms config <config-name> update
 
 Options:
   -v --version  Show version.

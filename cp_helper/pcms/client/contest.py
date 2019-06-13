@@ -49,7 +49,7 @@ def get_contests_list(name: str) -> List[Contest]:
     return [Contest(par.text, par.a['href'] if par.a else '') for par in contest_list.find_all('p')]
 
 
-def get_contest_status(name: str) -> str:
+def get_contest_status(name: str) -> [str, bool]:
     cl = Client(name)
     session = cl.session
     cfg = Config(name)
@@ -67,7 +67,7 @@ def get_contest_status(name: str) -> str:
     clock = soup.find('span', id='running-clock')
     if clock is None:
         return 'UNKNOWN, 0:00 of 0:00'
-    return clock.text.splitlines()[0]
+    return clock.text.splitlines()[0], 'Virtual Contest' in resp.text
 
 
 def get_contest_langs(name: str) -> List[Lang]:
@@ -83,7 +83,7 @@ def get_contest_langs(name: str) -> List[Lang]:
         print(color(f'Not logged. Relogging as {cfg.username}', fg='cyan', bright_fg=True))
         cfg.login()
 
-    status = get_contest_status(name)
+    status, _ = get_contest_status(name)
 
     if status.split(',')[0] != 'RUNNING':
         return []
