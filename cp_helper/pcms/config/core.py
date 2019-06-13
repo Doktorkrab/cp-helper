@@ -26,22 +26,22 @@ class Config(object):
         self.load()
 
     def __str__(self):
-        ret = ''
-        ret += f'url: {self.url}\n'
-        ret += f'username: {self.username}\n'
-        ret += f'templates:\n'
+        ret = f'Name: {self.name}\n'
+        ret += f'\turl: {self.url}\n'
+        ret += f'\tusername: {self.username}\n'
+        ret += f'\ttemplates:\n'
         max_len = len(str(len(self.templates)))
 
         for i in range(len(self.templates)):
             need_spaces = max_len - len(str(i + 1))
-            ret += f"{' ' * need_spaces}#{i + 1}|{self.templates[i].path_to}\n"
-            ret += f"{' ' * max_len} |{self.templates[i].compile_command}\n"
-            ret += f"{' ' * max_len} |{self.templates[i].run_command}\n"
-            ret += f"{' ' * max_len} |{self.templates[i].clean_command}\n"
-            ret += f"{' ' * max_len} |{', '.join([str(x) for x in self.templates[i].compilers])}\n"
-        ret += f'Path to config:{CONFIG_PATH}/{self.name}/config\n'
-        sep = ',\n'
-        ret += f'Langs: {sep.join([str(x) for x in self.langs])}'
+            ret += f"\t{' ' * need_spaces}#{i + 1}|{self.templates[i].path_to}\n"
+            ret += f"\t{' ' * max_len} |{self.templates[i].compile_command}\n"
+            ret += f"\t{' ' * max_len} |{self.templates[i].run_command}\n"
+            ret += f"\t{' ' * max_len} |{self.templates[i].clean_command}\n"
+            ret += f"\t{' ' * max_len} |{', '.join([str(x) for x in self.templates[i].compilers])}\n"
+        ret += f'\tPath to config:{CONFIG_PATH}/{self.name}/config\n'
+        sep = ',\n\t'
+        ret += f'\tLangs: {sep.join([str(x) for x in self.langs]).strip()}'
         return ret
 
     def load(self) -> None:
