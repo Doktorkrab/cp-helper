@@ -6,7 +6,7 @@ from cp_helper.utils import color
 
 def check_login(body: str) -> bool:
     soup = BeautifulSoup(body, 'html.parser')
-    return soup.find('td', text='Login name') is not None
+    return soup.find('input', id='login:name') is None
 
 
 def login(username: str, password: str, name: str, url: str) -> None:
