@@ -10,16 +10,50 @@ from cp_helper.utils import color
 
 
 class Contest:
-    def __init__(self, id: str = '', url: str = ''):
+    def __init__(self, id: str = '', url: str = '', client_name: str = ''):
         self.id = id
         self.url = url  # url to switch to that contest
         self.problems = []
+        self.client = client_name
 
     def __str__(self):
-        return f'{self.id}(url: {self.url}, problems: {len(self.problems)})'
+        self.switch()
+        status, virt = get_contest_status(self.client)
+        status_color = 'red'
+        if 'RUNNING' in status:
+            status_color = 'green'
+        elif 'OVER' in status:
+            status_color = 'yellow'
+        elif "BEFORE" in status:
+            status_color = 'blue'
+
+        if virt:
+            status = status.rstrip() + ' (Virtual)'
+        return self.id + ' ... ' + color(status, fg=status_color, bright_fg=True)
 
     def __eq__(self, other):
         return self.id == other.id
+
+    def switch(self) -> None:
+        if not self.url:
+            return
+        cl = Client(self.client)
+        session = cl.session
+        cfg = Config(self.client)
+        resp = session.get(cfg.url + 'party/information.xhtml')
+        if resp.status_code != 200 and resp.status_code != 302:
+            print(color(f'Network Error. Status code:{resp.status_code}', fg='red', bright_fg=True))
+
+        if not check_login(resp.text):
+            print(color(f'Not logged. Relogging as {cfg.username}', fg='cyan', bright_fg=True))
+            cfg.login()
+            cl = Client(self.client)
+            session = cl.session
+
+        url = cfg.url + self.url[self.url.index('party'):]
+        resp = session.get(url)
+        if resp.status_code != 200 and resp.status_code != 302:
+            print(color(f'Network Error. Status code:{resp.status_code}', fg='red', bright_fg=True))
 
 
 def get_contests_list(name: str) -> List[Contest]:
@@ -34,6 +68,8 @@ def get_contests_list(name: str) -> List[Contest]:
     if not check_login(resp.text):
         print(color(f'Not logged. Relogging as {cfg.username}', fg='cyan', bright_fg=True))
         cfg.login()
+        cl = Client(name)
+        session = cl.session
 
     resp = session.get(cfg.url + 'party/contests.xhtml')
     if resp.status_code != 200 and resp.status_code != 302:
@@ -46,7 +82,7 @@ def get_contests_list(name: str) -> List[Contest]:
     if contest_list is None or resp.url != cfg.url + 'party/contests.xhtml':
         print(color(f"Can't find any contests!", fg='red', bright_fg=True))
         return []
-    return [Contest(par.text, par.a['href'] if par.a else '') for par in contest_list.find_all('p')]
+    return [Contest(par.text, par.a['href'] if par.a else '', name) for par in contest_list.find_all('p')]
 
 
 def get_contest_status(name: str) -> [str, bool]:
@@ -61,6 +97,8 @@ def get_contest_status(name: str) -> [str, bool]:
     if not check_login(resp.text):
         print(color(f'Not logged. Relogging as {cfg.username}', fg='cyan', bright_fg=True))
         cfg.login()
+        cl = Client(name)
+        session = cl.session
         resp = session.get(cfg.url + 'party/information.xhtml')
 
     soup = bs4.BeautifulSoup(resp.text, 'html.parser')
@@ -82,6 +120,8 @@ def get_contest_langs(name: str) -> List[Lang]:
     if not check_login(resp.text):
         print(color(f'Not logged. Relogging as {cfg.username}', fg='cyan', bright_fg=True))
         cfg.login()
+        cl = Client(name)
+        session = cl.session
 
     status, _ = get_contest_status(name)
 

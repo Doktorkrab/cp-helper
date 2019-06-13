@@ -5,8 +5,7 @@ from shutil import get_terminal_size
 
 from requests import get
 
-from cp_helper.pcms.client.contest import get_contests_list, get_contest_langs, get_contest_status
-from cp_helper.pcms.client.core import Client
+from cp_helper.pcms.client.contest import get_contests_list, get_contest_langs
 from cp_helper.pcms.config import CONFIG_PATH
 from cp_helper.pcms.config.core import Config
 from cp_helper.utils import color, choose_yn
@@ -71,31 +70,11 @@ def update_langs(args: dict):
         print(color('Config not found.', fg='red', bright_fg=True))
         return
     cfg = Config(args['<config-name>'])
-    cl = Client(args['<config-name>'])
-    session = cl.session
 
     contests = get_contests_list(args['<config-name>'])
     cfg.langs = []
     for contest in contests:
-        if contest.url:
-            url = cfg.url + contest.url[contest.url.index('party'):]
-            resp = session.get(url)
-            if resp.status_code != 200 and resp.status_code != 302:
-                print(contest.id, '...', color(f'UNKNOWN: {resp.status_code}', fg='magenta', bright_fg=True))
-                continue
-        status, virt = get_contest_status(args['<config-name>'])
-        contest.virtual = virt
-        status_color = ''
-        if 'RUNNING' in status:
-            status_color = 'green'
-        elif 'OVER' in status:
-            status_color = 'yellow'
-        elif "BEFORE" in status:
-            status_color = 'blue'
-
-        if virt:
-            status = status.rstrip() + ' (Virtual)'
-        print(contest.id, '...', color(status, fg=status_color, bright_fg=True))
+        print(contest)
         cfg.langs = list(set(cfg.langs) | set(get_contest_langs(args['<config-name>'])))
 
 
