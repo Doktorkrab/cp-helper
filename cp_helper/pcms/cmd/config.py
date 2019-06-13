@@ -74,8 +74,10 @@ def update_langs(args: dict):
     contests = get_contests_list(args['<config-name>'])
     cfg.langs = []
     for contest in contests:
-        print(contest)
-        cfg.langs = list(set(cfg.langs) | set(get_contest_langs(args['<config-name>'])))
+        contest.switch()
+        langs = get_contest_langs(args['<config-name>'])
+        print(contest, f', found {len(langs)} compilers', sep='')
+        cfg.langs = list(set(cfg.langs) | set(langs))
 
 
 def template_parse(args: dict) -> None:
