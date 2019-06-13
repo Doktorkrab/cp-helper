@@ -39,6 +39,8 @@ def parse_config(args: dict) -> None:
         template_parse(args)
     elif args['update']:
         update_langs(args)
+    elif args['switch']:
+        switch(args)
 
 
 def new_config(args: dict) -> None:
@@ -73,11 +75,32 @@ def update_langs(args: dict):
 
     contests = get_contests_list(args['<config-name>'])
     cfg.langs = []
-    for contest in contests:
-        contest.switch()
+    max_len = len(str(len(contests)))
+    for i in range(len(contests)):
+        need_spaces = max_len - len(str(i + 1))
+        print(f"{' ' * need_spaces}#{i + 1}|{contests[i]}", end=', ')
         langs = get_contest_langs(args['<config-name>'])
-        print(contest, f', found {len(langs)} compilers', sep='')
+        print(f'found {len(langs)} compilers')
         cfg.langs = list(set(cfg.langs) | set(langs))
+
+
+def switch(args: dict):
+    path = f'{CONFIG_PATH}/{args["<config-name>"]}'
+    if not isdir(path):
+        print(color('Config not found.', fg='red', bright_fg=True))
+        return
+
+    contests = get_contests_list(args['<config-name>'])
+    max_len = len(str(len(contests)))
+
+    for i in range(len(contests)):
+        need_spaces = max_len - len(str(i + 1))
+        print(f"{' ' * need_spaces}#{i + 1}|{contests[i]}")
+    ind = ''
+    while not (ind.isdigit() and 1 <= int(ind) <= len(contests)):
+        ind = input('Please enter a index:')
+
+    contests[int(ind) - 1].switch()
 
 
 def template_parse(args: dict) -> None:
