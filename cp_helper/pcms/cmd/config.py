@@ -5,7 +5,7 @@ from shutil import get_terminal_size
 
 from requests import Session
 
-from cp_helper.pcms.client.contest import get_contests_list, get_contest_langs, get_contest_status
+from cp_helper.pcms.client.contest import get_contests_list, get_contest_langs, Contest
 from cp_helper.pcms.client.core import Client
 from cp_helper.pcms.config import CONFIG_PATH
 from cp_helper.pcms.config.core import Config
@@ -112,16 +112,8 @@ def update_langs(args: dict):
 
     cl = Client(args['<config-name>'])
     contests = get_contests_list(cl)
-    cur = cl.current_contest
-    if len(contests) > 1:
-        contests[1].switch()
-        tmp = get_contests_list(cl)
-        for i in tmp:
-            if i == cur:
-                cur.url = i.url
-                cl.current_contest = cur
-                cur.switch()
-                break
+    cur: Contest = cl.current_contest
+
     cfg.langs = []
     max_len = len(str(len(contests))) + 3
     for i in range(len(contests)):
@@ -130,8 +122,8 @@ def update_langs(args: dict):
         print(f"{' ' * need_spaces}#{i + 1}{'' if contests[i] != cur else '(*)'}|{contests[i]}", end=', ')
         langs = get_contest_langs(cl)
         print(f'found {len(langs)} compilers')
-
         cfg.langs = list(set(cfg.langs) | set(langs))
+    cur.switch()
 
 
 def switch(args: dict):
@@ -140,7 +132,19 @@ def switch(args: dict):
         print(color('Config not found.', fg='red', bright_fg=True))
         return
     cl = Client(args['<config-name>'])
-    print(get_contest_status(cl))
+    contests = get_contests_list(cl)
+    cur: Contest = cl.current_contest
+    max_len = len(str(len(contests))) + 3
+
+    for i in range(len(contests)):
+        need_spaces = max_len - len(str(i + 1))
+        contests[i].switch()
+        print(f"{' ' * need_spaces}#{i + 1}{'' if contests[i] != cur else '(*)'}|{contests[i]}")
+    num = input('Enter number:')
+    while not num.isnumeric() or not (1 <= int(num) <= len(contests)):
+        num = input('Enter number:')
+    contests[int(num) - 1].switch()
+
 
 
 def template_parse(args: dict) -> None:

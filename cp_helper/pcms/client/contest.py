@@ -96,8 +96,20 @@ def get_contests_list(cl: Client) -> List[Contest]:
             cl.current_contest.switch()
             cl.save()
             break
+    ret = [Contest(par.text, par.a['href'] if par.a else '', cl) for par in contest_list.find_all('p')]
+    can_switch: List[Contest] = list(filter(lambda x: x.url != '', ret))
+    lst = cl.current_contest
+    if len(can_switch) > 0:
+        can_switch[0].switch()
+        resp = session.get(cfg.url + '/party/contests.xhtml')
+        soup = bs4.BeautifulSoup(resp.text, 'html.parser')
 
-    return [Contest(par.text, par.a['href'] if par.a else '', cl) for par in contest_list.find_all('p')]
+        contest_list1 = list(soup.find('div', {'class': "template-padded"}).find_all('p'))
+        for i in range(len(contest_list1)):
+            ret[i] = ret[i] if ret[i].url != '' else Contest(contest_list1[i].text, contest_list1[i].a['href'], cl)
+            if lst == ret[i]:
+                cl.current_contest = ret[i]
+    return ret
 
 
 def get_contest_status(cl: Client) -> [str, bool]:
