@@ -13,6 +13,12 @@ Usage:
   cp-helper cf test [<filename>]
   cp-helper cf submit [([(g <group-id>)] <contest-id> <problem-id>)] [<filename>]
   cp-helper cf open [(g <group-id>)] [<contest-id>] [<problem-id>]
+  cp-helper pcms config print [<config-name>]
+  cp-helper pcms config new <config-name>
+  cp-helper pcms config <config-name> template add
+  cp-helper pcms config <config-name> template delete
+  cp-helper pcms config <config-name> update
+  cp-helper pcms config <config-name> switch
 
 Options:
   -v --version  Show version.
@@ -37,13 +43,16 @@ Examples:
 """
 from docopt import docopt
 
-from cp_helper.cf import cmd
+import cp_helper.cf.cmd
+import cp_helper.pcms.cmd
 
 
 def parse():
     arguments = docopt(__doc__, version="Alpha 1(codeforces edition)")
     if arguments['cf']:
-        cmd.parse_args(arguments)
+        cp_helper.cf.cmd.parse_args(arguments)
+    elif arguments['pcms']:
+        cp_helper.pcms.cmd.parse_args(arguments)
 
 
 if __name__ == "__main__":
