@@ -13,11 +13,11 @@ def login(username: str, password: str, name: str, url: str) -> None:
     cl = Client(name)
     session = cl.session
 
-    login_url = url + 'login.xhtml'
+    login_url = url + '/login.xhtml'
     resp = session.get(login_url)
 
     if resp.status_code != 200 and resp.status_code != 302:
-        print(login_url)
+        print(login_url, resp.url)
         print(color(f'Network error at get! Status code: {resp.status_code}', fg='red', bright_fg=True))
         return
 
@@ -34,9 +34,9 @@ def login(username: str, password: str, name: str, url: str) -> None:
         print(color(f'Network error at post! Status code{resp.status_code}', fg='red', bright_fg=True))
         return
 
-    resp = session.post(url + 'set-locale.xhtml', data={
+    resp = session.post(url + '/set-locale.xhtml', data={
         'locale-name': "English",
-        'return-path': '/party/information.xhtml?'
+        'return-path': '/party/information.xhtml'
     })
     if resp.status_code != 200 and resp.status_code != 302:
         print(color(f'Network error at set-locale! Status code{resp.status_code}', fg='red', bright_fg=True))

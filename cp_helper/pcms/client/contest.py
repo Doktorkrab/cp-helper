@@ -9,12 +9,18 @@ from cp_helper.pcms.config.lang import Lang, find_languages
 from cp_helper.utils import color
 
 
+class Problem:
+    def __init__(self, id: str = '', name: str = ''):
+        self.id = id
+        self.name = name
+
+
 class Contest:
-    def __init__(self, id: str = '', url: str = '', client_name: str = ''):
+    def __init__(self, id: str = '', url: str = '', client: Client = None):
         self.id = id
         self.url = url  # url to switch to that contest
-        self.problems = []
-        self.client = client_name
+        self.problems: List[Problem] = []
+        self.client = client
 
     def __str__(self):
         self.switch()
@@ -36,31 +42,33 @@ class Contest:
 
     def switch(self) -> None:
         if not self.url:
+            self.client.current_contest = self
             return
-        cl = Client(self.client)
-        session = cl.session
-        cfg = Config(self.client)
-        resp = session.get(cfg.url + 'party/information.xhtml')
+        session = self.client.session
+        cfg = Config(self.client.name)
+        resp = session.get(cfg.url + '/party/information.xhtml')
         if resp.status_code != 200 and resp.status_code != 302:
             print(color(f'Network Error. Status code:{resp.status_code}', fg='red', bright_fg=True))
 
         if not check_login(resp.text):
             print(color(f'Not logged. Relogging as {cfg.username}', fg='cyan', bright_fg=True))
             cfg.login()
-            cl = Client(self.client)
-            session = cl.session
+            self.client.load()
+            session = self.client.session
 
-        url = cfg.url + self.url[self.url.index('party'):]
+        url = cfg.url + '/' + self.url[self.url.index('party'):]
         resp = session.get(url)
         if resp.status_code != 200 and resp.status_code != 302:
             print(color(f'Network Error. Status code:{resp.status_code}', fg='red', bright_fg=True))
 
+        self.client.current_contest = self
+        self.client.save()
 
-def get_contests_list(name: str) -> List[Contest]:
-    cl = Client(name)
+
+def get_contests_list(cl: Client) -> List[Contest]:
     session = cl.session
-    cfg = Config(name)
-    resp = session.get(cfg.url + 'party/information.xhtml')
+    cfg = Config(cl.name)
+    resp = session.get(cfg.url + '/party/information.xhtml')
     if resp.status_code != 200 and resp.status_code != 302:
         print(color(f'Network Error. Status code:{resp.status_code}', fg='red', bright_fg=True))
         return []
@@ -68,10 +76,10 @@ def get_contests_list(name: str) -> List[Contest]:
     if not check_login(resp.text):
         print(color(f'Not logged. Relogging as {cfg.username}', fg='cyan', bright_fg=True))
         cfg.login()
-        cl = Client(name)
+        cl.load()
         session = cl.session
 
-    resp = session.get(cfg.url + 'party/contests.xhtml')
+    resp = session.get(cfg.url + '/party/contests.xhtml')
     if resp.status_code != 200 and resp.status_code != 302:
         print(color(f'Network Error. Status code: {resp.status_code}', fg='red', bright_fg=True))
         return []
@@ -79,17 +87,23 @@ def get_contests_list(name: str) -> List[Contest]:
     soup = bs4.BeautifulSoup(resp.text, 'html.parser')
 
     contest_list: bs4.Tag = soup.find('div', {'class': "template-padded"})
-    if contest_list is None or resp.url != cfg.url + 'party/contests.xhtml':
+    if contest_list is None or resp.url != cfg.url + '/party/contests.xhtml':
         print(color(f"Can't find any contests!", fg='red', bright_fg=True))
         return []
-    return [Contest(par.text, par.a['href'] if par.a else '', name) for par in contest_list.find_all('p')]
+    for par in contest_list.find_all('p'):
+        if not par.a:
+            cl.current_contest = Contest(par.text, '', cl)
+            cl.current_contest.switch()
+            cl.save()
+            break
+
+    return [Contest(par.text, par.a['href'] if par.a else '', cl) for par in contest_list.find_all('p')]
 
 
-def get_contest_status(name: str) -> [str, bool]:
-    cl = Client(name)
+def get_contest_status(cl: Client) -> [str, bool]:
     session = cl.session
-    cfg = Config(name)
-    resp = session.get(cfg.url + 'party/information.xhtml')
+    cfg = Config(cl.name)
+    resp = session.get(cfg.url + '/party/information.xhtml')
     if resp.status_code != 200 and resp.status_code != 302:
         print(color(f'Network Error. Status code:{resp.status_code}', fg='red', bright_fg=True))
         return 'UNKNOWN, 0:00 of 0:00'
@@ -97,9 +111,9 @@ def get_contest_status(name: str) -> [str, bool]:
     if not check_login(resp.text):
         print(color(f'Not logged. Relogging as {cfg.username}', fg='cyan', bright_fg=True))
         cfg.login()
-        cl = Client(name)
+        cl.load()
         session = cl.session
-        resp = session.get(cfg.url + 'party/information.xhtml')
+        resp = session.get(cfg.url + '/party/information.xhtml')
 
     soup = bs4.BeautifulSoup(resp.text, 'html.parser')
     clock = soup.find('span', id='running-clock')
@@ -108,11 +122,10 @@ def get_contest_status(name: str) -> [str, bool]:
     return clock.text.splitlines()[0], 'Virtual Contest' in resp.text
 
 
-def get_contest_langs(name: str) -> List[Lang]:
-    cl = Client(name)
+def get_contest_langs(cl: Client) -> List[Lang]:
     session = cl.session
-    cfg = Config(name)
-    resp = session.get(cfg.url + 'party/information.xhtml')
+    cfg = Config(cl.name)
+    resp = session.get(cfg.url + '/party/information.xhtml')
     if resp.status_code != 200 and resp.status_code != 302:
         print(color(f'Network Error. Status code:{resp.status_code}', fg='red', bright_fg=True))
         return []
@@ -120,14 +133,14 @@ def get_contest_langs(name: str) -> List[Lang]:
     if not check_login(resp.text):
         print(color(f'Not logged. Relogging as {cfg.username}', fg='cyan', bright_fg=True))
         cfg.login()
-        cl = Client(name)
+        cl = Client(cl.name)
         session = cl.session
 
-    status, _ = get_contest_status(name)
+    status, _ = get_contest_status(cl)
 
     if status.split(',')[0] != 'RUNNING':
         return []
 
-    resp = session.get(cfg.url + 'party/submit.xhtml')
+    resp = session.get(cfg.url + '/party/submit.xhtml')
 
     return find_languages(resp.text)

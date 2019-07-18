@@ -1,11 +1,12 @@
 from getpass import getpass
-from os import listdir, makedirs
-from os.path import isdir
+from os import listdir, makedirs, remove
+from os.path import isdir, isfile
 from shutil import get_terminal_size
 
-from requests import get
+from requests import Session
 
-from cp_helper.pcms.client.contest import get_contests_list, get_contest_langs
+from cp_helper.pcms.client.contest import get_contests_list, get_contest_langs, get_contest_status
+from cp_helper.pcms.client.core import Client
 from cp_helper.pcms.config import CONFIG_PATH
 from cp_helper.pcms.config.core import Config
 from cp_helper.utils import color, choose_yn
@@ -43,21 +44,57 @@ def parse_config(args: dict) -> None:
         switch(args)
 
 
+def get_pcms_url(url: str):
+    """
+    Returns a url of pcms without /login, /logout, etc
+    :param url: url to prettify
+    :return: pretty url
+    """
+    ret = None
+    print(url, ret)
+    if ';' in url:
+        url, ret = url.split(';')
+    tmp = url.split('/')
+    for i in range(len(tmp)):
+        if tmp[i] == 'pcms2client':
+            return '/'.join(tmp[:i + 1]), ret
+    return None, ret
+
+
 def new_config(args: dict) -> None:
     path = f'{CONFIG_PATH}/{args["<config-name>"]}'
-    if isdir(path) and not choose_yn(f'Config {args["<config-name>"]} existed. Rewrite?'):
-        return
+    if isdir(path) and isfile(f'{path}/config'):
+        if not choose_yn(f'Config {args["<config-name>"]} existed. Rewrite?'):
+            return
+        remove(f'{path}/config')
+        if isfile(f'{path}/session'):
+            remove(f'{path}/session')
+
+    tmp_session = Session()
+    tmp_session.headers.update({"User-Agent": "https://github.com/DoktorKrab/cp-helper"})
 
     cfg = Config(args['<config-name>'])
-    cfg.url = input('URL:')
-    resp = get(cfg.url)
-    cfg.url = resp.url
-    while (resp.status_code != 200 and resp.status_code != 302) or not resp.url.endswith('login.xhtml'):
-        cfg.url = input('Enter a right pcms url:')
-        resp = get(cfg.url)
+    cfg.url, shit = get_pcms_url(tmp_session.get((input('URL:'))).url)
+    if shit is not None:
+        tmp = shit.split('=')
+        tmp_session.cookies[tmp[0]] = tmp[1]
+    if cfg.url is not None:
+        resp = tmp_session.get(cfg.url)
+    else:
+        resp = None
+    while cfg.url is None or resp is None or (resp.status_code != 200 and resp.status_code != 302):
+        cfg.url, shit = get_pcms_url(tmp_session.get((input('URL:'))).url)
+        if shit is not None:
+            tmp = shit.split('=')
+            tmp_session.cookies[tmp[0]] = tmp[1]
+        resp = tmp_session.get(cfg.url)
         cfg.url = resp.url
 
-    cfg.url = cfg.url.replace('login.xhtml', '')
+    # Save cookies. Thank you Innopolis
+    cl = Client(args["<config-name>"])
+    cl.cookies = tmp_session.cookies
+    cl.save()
+
     username = input('Username:')
     password = getpass('Password:')
 
@@ -73,14 +110,27 @@ def update_langs(args: dict):
         return
     cfg = Config(args['<config-name>'])
 
-    contests = get_contests_list(args['<config-name>'])
+    cl = Client(args['<config-name>'])
+    contests = get_contests_list(cl)
+    cur = cl.current_contest
+    if len(contests) > 1:
+        contests[1].switch()
+        tmp = get_contests_list(cl)
+        for i in tmp:
+            if i == cur:
+                cur.url = i.url
+                cl.current_contest = cur
+                cur.switch()
+                break
     cfg.langs = []
-    max_len = len(str(len(contests)))
+    max_len = len(str(len(contests))) + 3
     for i in range(len(contests)):
         need_spaces = max_len - len(str(i + 1))
-        print(f"{' ' * need_spaces}#{i + 1}|{contests[i]}", end=', ')
-        langs = get_contest_langs(args['<config-name>'])
+        contests[i].switch()
+        print(f"{' ' * need_spaces}#{i + 1}{'' if contests[i] != cur else '(*)'}|{contests[i]}", end=', ')
+        langs = get_contest_langs(cl)
         print(f'found {len(langs)} compilers')
+
         cfg.langs = list(set(cfg.langs) | set(langs))
 
 
@@ -89,18 +139,8 @@ def switch(args: dict):
     if not isdir(path):
         print(color('Config not found.', fg='red', bright_fg=True))
         return
-
-    contests = get_contests_list(args['<config-name>'])
-    max_len = len(str(len(contests)))
-
-    for i in range(len(contests)):
-        need_spaces = max_len - len(str(i + 1))
-        print(f"{' ' * need_spaces}#{i + 1}|{contests[i]}")
-    ind = ''
-    while not (ind.isdigit() and 1 <= int(ind) <= len(contests)):
-        ind = input('Please enter a index:')
-
-    contests[int(ind) - 1].switch()
+    cl = Client(args['<config-name>'])
+    print(get_contest_status(cl))
 
 
 def template_parse(args: dict) -> None:
