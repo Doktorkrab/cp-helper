@@ -5,7 +5,7 @@ from shutil import get_terminal_size
 
 from requests import Session
 
-from cp_helper.pcms.client.contest import get_contests_list, get_contest_langs, Contest
+from cp_helper.pcms.client.contest import get_contests_list, get_contest_langs, Contest, get_contest_status
 from cp_helper.pcms.client.core import Client
 from cp_helper.pcms.config import CONFIG_PATH
 from cp_helper.pcms.config.core import Config
@@ -132,6 +132,7 @@ def switch(args: dict):
         print(color('Config not found.', fg='red', bright_fg=True))
         return
     cl = Client(args['<config-name>'])
+    print(get_contest_status(cl))
     contests = get_contests_list(cl)
     cur: Contest = cl.current_contest
     max_len = len(str(len(contests))) + 3

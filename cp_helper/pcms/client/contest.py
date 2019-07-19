@@ -44,6 +44,9 @@ class Contest:
         if not self.url:
             self.client.current_contest = self
             return
+        self.client.current_contest = None
+        self.client.save()
+
         session = self.client.session
         cfg = Config(self.client.name)
         resp = session.get(cfg.url + '/party/information.xhtml')
@@ -63,6 +66,39 @@ class Contest:
 
         self.client.current_contest = self
         self.client.save()
+
+    def parse(self):
+        self.switch()
+        session = self.client.session
+        cfg = Config(self.client.name)
+
+        submit_url = f'{cfg.url}/party/submit.xhtml'
+        resp = session.get(submit_url)
+        if not resp.ok:
+            print(
+                color(f'Network error while parsing {self}. Error Code: {resp.status_code}', fg='red', bright_fg=True)
+            )
+            return
+
+        if not check_login(resp.text):
+            print(color(f'Not logged. Relogging as {cfg.username}', fg='cyan', bright_fg=True))
+            cfg.login()
+            self.client.load()
+            session = self.client.session
+
+        resp = session.get(submit_url)
+
+        parser = bs4.BeautifulSoup(resp.text, 'html.parser')
+        select = parser.find('select', id='submit:problem')
+
+        if select is None:
+            return
+
+        self.problems = []
+        select: bs4.Tag = select
+        print(color(f'Found {len(select.find_all("option"))} problems in {self.id}', fg='magenta', bright_fg=True))
+        for problem in select.find_all('option'):
+            self.problems.append(Problem(problem['value'], problem.text))
 
 
 def get_contests_list(cl: Client) -> List[Contest]:
@@ -109,6 +145,12 @@ def get_contests_list(cl: Client) -> List[Contest]:
             ret[i] = ret[i] if ret[i].url != '' else Contest(contest_list1[i].text, contest_list1[i].a['href'], cl)
             if lst == ret[i]:
                 cl.current_contest = ret[i]
+                lst = ret[i]
+
+    for contest in ret:
+        contest.switch()
+        contest.parse()
+    lst.switch()
     return ret
 
 
